@@ -1,0 +1,448 @@
+---
+title: "Problem Set 1"
+subtitle: "ECON 300 · Applied Statistics for Economists"
+author: "YOUR NAME HERE"
+date: today
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    code-fold: false
+    embed-resources: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+```
+
+::: {.callout-important}
+### Logistics
+
+**Assigned:** Thursday, September 17 · **Due:** Monday, September 21, 11:59 PM
+**Covers:** Cohen Ch. 2–3 · Sessions 2–3
+**Points:** 50 · **Late penalty:** 10% per day
+
+**Submit:** commit both `ps-01.qmd` and the rendered `ps-01.html` to your course
+repository and push. If I cannot clone your repo and render your `.qmd` from a
+clean directory, the set is not submitted.
+:::
+
+::: {.callout-tip}
+### How this problem set works
+
+Roughly 40% of the points are for work you do **by hand**, and the rest for work
+you do **in code**. These are not separate worlds. In almost every problem you
+will compute something by hand and then verify it with a function.
+
+Do the hand version **first**, and write it out — the arithmetic is the point,
+not the answer. Then run the code. When the two disagree, the interesting
+question is always *why*, and saying so earns full credit; quietly deleting the
+hand version earns none.
+
+Write hand derivations in **math mode** inside this document, not on paper:
+
+    $$
+    \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i = \frac{240}{6} = 40
+    $$
+:::
+
+---
+
+# Part 1 — What are data? {#sec-part1}
+
+**14 points**
+
+## Question 1.1 — Levels of measurement {#sec-q11}
+
+**(6 points)**
+
+For each variable below, state its **level of measurement** (nominal, ordinal,
+interval, or ratio) and give **one operation that would be meaningless** on it.
+
+| # | Variable |
+|---|---|
+| a | Census region of a metro area |
+| b | Loan applicant's credit score band: Poor / Fair / Good / Excellent |
+| c | Median household income in dollars |
+| d | Year a bank branch opened |
+| e | Unemployment rate, in percent |
+| f | Federal Reserve district number (1–12) |
+
+*Write your answers here as a markdown table with three columns: variable, level, meaningless operation.*
+
+::: {.callout-note appearance="minimal"}
+Part (f) is the one to think hardest about. The values are numbers. Does that make them numeric?
+:::
+
+**Your answer:**
+
+<!-- Write your table here -->
+
+## Question 1.2 — Accuracy and precision {#sec-q12}
+
+**(4 points)**
+
+A county records median household income two ways.
+
+- **Method A** surveys 50 households and reports \$61,200. Repeated on fresh
+  samples it gives \$58,900, \$63,400, \$60,100, \$62,800.
+- **Method B** uses tax records covering every household, but the software drops
+  the top 1% of earners before computing. It reports \$54,300 every time.
+
+Answer in two or three sentences each:
+
+(a) Which method is more **precise**? Which is more **accurate**? Explain.
+
+(b) You are given more budget. Method A can survey 5,000 households instead of
+50. Does that fix Method B's problem? Explain what sample size does and does not
+buy you.
+
+**Your answer:**
+
+<!-- Write here -->
+
+## Question 1.3 — Defining a population {#sec-q13}
+
+**(4 points)**
+
+A researcher writes: *"We estimate the effect of payday lending storefronts on
+household financial distress."*
+
+(a) Name **two different populations** this sentence could plausibly refer to.
+
+(b) For each, state one thing you could conclude that you could **not**
+conclude from the other.
+
+**Your answer:**
+
+<!-- Write here -->
+
+---
+
+# Part 2 — Descriptives by hand, then by code {#sec-part2}
+
+**20 points**
+
+Here are the median household incomes, in thousands of dollars, for twelve
+metro areas.
+
+```{r}
+#| label: q2-data
+income <- c(
+  76.5,
+  91.2,
+  106.8,
+  78.9,
+  84.3,
+  82.1,
+  68.4,
+  75.8,
+  59.2,
+  76.1,
+  105.3,
+  118.6
+)
+
+income
+```
+
+## Question 2.1 — The mean, twice {#sec-q21}
+
+**(5 points)**
+
+(a) **By hand.** Compute the sample mean. Show the summation explicitly in math
+mode — write out $\sum x_i$ as an actual sum of the twelve numbers, then divide.
+
+$$
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i = \frac{\_\_\_\_}{\_\_\_\_} = \_\_\_\_
+$$
+
+(b) **By code.** Now verify it two ways — first building the mean from its
+definition, then with the built-in function.
+
+```{r}
+#| label: q21-code
+#| eval: false
+# From the definition: sum divided by n
+n <- ____
+total <- ____
+total / n
+
+# With the built-in
+mean(income)
+```
+
+(c) Do they agree? If your hand answer differs, find your arithmetic error —
+do not just change the number.
+
+**Your answer:**
+
+<!-- Write here -->
+
+## Question 2.2 — The median, twice {#sec-q22}
+
+**(4 points)**
+
+(a) **By hand.** Sort the twelve values. Since $n$ is even, the median is the
+average of the two middle values. Show the sorted vector, identify which two
+positions are the middle, and compute.
+
+(b) **By code.** Verify.
+
+```{r}
+#| label: q22-code
+#| eval: false
+# Sort them so you can see what you did by hand
+sort(income)
+
+# The two middle positions for n = 12
+____
+
+# The built-in
+median(income)
+```
+
+(c) The mean is larger than the median here. In one sentence, what does that
+tell you about the shape of this distribution?
+
+**Your answer:**
+
+<!-- Write here -->
+
+## Question 2.3 — Variance and standard deviation, twice {#sec-q23}
+
+**(7 points)**
+
+(a) **By hand.** Using the **first five** values only (76.5, 91.2, 106.8, 78.9,
+84.3), compute the sample variance. Build a table with columns
+$x_i$, $x_i - \bar{x}$, and $(x_i - \bar{x})^2$, then apply
+
+$$
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2
+$$
+
+(b) Take the square root to get $s$.
+
+(c) **By code.** Verify — first from the definition, then with the built-ins.
+
+```{r}
+#| label: q23-code
+#| eval: false
+first_five <- income[1:5]
+
+# From the definition
+xbar <- ____
+deviations <- ____
+squared_devs <- ____
+sum(squared_devs) / ____
+
+# Built-ins
+var(first_five)
+sd(first_five)
+```
+
+(d) **The $n-1$ question.** Recompute the variance dividing by $n$ instead of
+$n-1$. You get a smaller number. In two or three sentences, explain why we
+divide by $n-1$ — what would go wrong if we used $n$?
+
+**Your answer:**
+
+<!-- Write here -->
+
+## Question 2.4 — Range and IQR {#sec-q24}
+
+**(4 points)**
+
+(a) **By hand.** Using all twelve values, give the range (max − min).
+
+(b) **By hand.** Find $Q_1$ and $Q_3$ from your sorted list and compute
+$\text{IQR} = Q_3 - Q_1$.
+
+(c) **By code.** Verify.
+
+```{r}
+#| label: q24-code
+#| eval: false
+range(income)
+diff(range(income))
+
+quantile(income, probs = c(0.25, 0.75))
+IQR(income)
+```
+
+(d) Your hand answer for the IQR probably does **not** exactly match `IQR()`.
+This is not an error. Read `?quantile` and explain in two sentences why.
+
+**Your answer:**
+
+<!-- Write here -->
+
+---
+
+# Part 3 — The tidyverse {#sec-part3}
+
+**10 points**
+
+```{r}
+#| label: q3-data
+metros <- tibble(
+  metro = c(
+    "Atlanta",
+    "Baltimore",
+    "Boston",
+    "Charlotte",
+    "Chicago",
+    "Dallas",
+    "Detroit",
+    "Houston",
+    "Memphis",
+    "Phoenix",
+    "Seattle",
+    "Washington"
+  ),
+  region = c(
+    "South",
+    "South",
+    "Northeast",
+    "South",
+    "Midwest",
+    "South",
+    "Midwest",
+    "South",
+    "South",
+    "West",
+    "West",
+    "South"
+  ),
+  population = c(6.1, 2.8, 4.9, 2.7, 9.5, 7.6, 4.3, 7.1, 1.3, 4.9, 4.0, 6.3) *
+    1e6,
+  med_income = c(
+    76500,
+    91200,
+    106800,
+    78900,
+    84300,
+    82100,
+    68400,
+    75800,
+    59200,
+    76100,
+    105300,
+    118600
+  ),
+  unemployment = c(3.4, 3.9, 3.1, 3.3, 4.2, 3.6, 4.8, 4.1, 4.6, 3.5, 3.8, 2.9)
+)
+```
+
+## Question 3.1 — A pipeline {#sec-q31}
+
+**(5 points)**
+
+In **one** piped expression: keep metros with population above 4 million, add a
+column `income_k` giving median income in thousands, keep only `metro`,
+`region`, and `income_k`, and sort from highest income to lowest.
+
+```{r}
+#| label: q31-code
+#| eval: false
+metros |>
+  ____ |>
+  ____ |>
+  ____ |>
+  ____
+```
+
+## Question 3.2 — Group and summarise {#sec-q32}
+
+**(5 points)**
+
+For each region, report the number of metros, total population, and the
+**population-weighted** mean income. The weighted mean is
+
+$$
+\bar{x}_w = \frac{\sum_i w_i x_i}{\sum_i w_i}
+$$
+
+```{r}
+#| label: q32-code
+#| eval: false
+metros |>
+  group_by(____) |>
+  summarise(
+    n = ____,
+    total_pop = ____,
+    weighted_inc = ____
+  )
+```
+
+Then compare your weighted means to the **unweighted** means. Which region
+changes most, and why?
+
+**Your answer:**
+
+<!-- Write here -->
+
+---
+
+# Part 4 — Visualization {#sec-part4}
+
+**6 points**
+
+## Question 4.1 — Histogram by hand, then by code {#sec-q41}
+
+**(6 points)**
+
+(a) **By hand.** Using the twelve incomes from Part 2 (in thousands), tally them
+into bins of width 15 starting at 55: $[55, 70)$, $[70, 85)$, $[85, 100)$,
+$[100, 115)$, $[115, 130)$. Write the frequency table as a markdown table.
+
+(b) **By hand.** Sketch the histogram — describe it in words if you cannot draw
+it here: which bin is tallest, is it symmetric, where is the tail?
+
+(c) **By code.** Reproduce it, using the same bin boundaries.
+
+```{r}
+#| label: q41-code
+#| eval: false
+income_df <- tibble(income = income)
+
+ggplot(income_df, aes(x = ____)) +
+  geom_histogram(breaks = ____, fill = "steelblue", color = "white") +
+  labs(
+    title = "____",
+    x = "____",
+    y = "____"
+  ) +
+  theme_minimal()
+```
+
+(d) Now render the same data with `bins = 3` and with `bins = 12`. In two or
+three sentences: what does each choice hide, and what does that tell you about
+histograms as evidence?
+
+**Your answer:**
+
+<!-- Write here -->
+
+---
+
+# Submission checklist
+
+- [ ] Every `eval: false` removed from the chunks you were asked to complete
+- [ ] Document renders from top to bottom with no errors
+- [ ] Every hand derivation written in math mode, showing the steps
+- [ ] Every "explain in a sentence" question actually answered in prose
+- [ ] Your name in the YAML header
+- [ ] Both `ps-01.qmd` and `ps-01.html` committed and pushed
+
+
+
+
+<!-- Write here -->

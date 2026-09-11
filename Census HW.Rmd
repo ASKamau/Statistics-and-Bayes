@@ -1,0 +1,86 @@
+---
+title: "Interactive DC Map"
+author: "Ari Kamau"
+date: "2026-08-12"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+CENSUS_API_KEY <- 'ENTER Your Census API Key Here'
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+# install packages
+#install.packages("tidycensus")
+#install.packages("tidyverse")
+#install.packages("mapview")
+#install.packages("mapgl")
+#install.packages("sf")
+#install.packages("viridis")
+library(tidycensus)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(viridis)
+library(mapview)
+```
+
+## Including Plots
+# Georgia Avg Income
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+ga_income_sf <- get_acs(
+  geography = "county",
+  variables = "B19013_001", # income variable
+  state = "GA",
+  year = 2023,
+  geometry = T
+)
+```
+# Static Map
+
+```{r pressure, echo=FALSE}
+plot(ga_income_sf['estimate'])
+```
+
+
+```{r pressure, echo=FALSE}
+mapview(
+  ga_income_sf,
+  zcol = "estimate"
+)
+```
+
+
+```{r pressure, echo=FALSE}
+dc_income_sf <- get_acs(
+  geography = "tract",
+  variables = "B19013_001", # income variable
+  state = "DC",
+  year = 2024,
+  geometry = T
+)
+```
+```{r pressure, echo=FALSE}
+
+plot(dc_income_sf['estimate'])
+```
+
+
+
+
+```{r pressure, echo=FALSE}
+
+mapview(
+  dc_income_sf,
+  zcol = "estimate"
+)
+```

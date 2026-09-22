@@ -1,0 +1,255 @@
+---
+title: "Classwork 2-1: Probability and Expectation"
+subtitle: "ECON 300 · Applied Statistics for Economists · Stock & Watson Ch. 2"
+author: "YOUR NAME HERE"
+date: today
+format:
+  pdf:
+    documentclass: article
+    papersize: letter
+    geometry:
+      - margin=1in
+    fontsize: 11pt
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{amsmath,amssymb,booktabs}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+**Assigned** Thursday, September 24 · **Due** Monday, September 28, 11:59 PM ·
+**Points** 40
+
+**Instructions.** Do Questions 1–3 *by hand*, showing the arithmetic. Writing
+out the sum before you evaluate it is the point of the exercise, not the final
+number. Write your work in math mode inside this document, like this:
+
+
+$$
+\bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i = \frac{3 + 5 + 2 + 6}{4} = \frac{16}{4} = 4
+$$
+
+
+Then reproduce every result in R in Question 4. Round to four decimal places.
+
+If your hand answer and your R answer disagree, say so and find the arithmetic
+error. Reporting a disagreement earns full credit; quietly deleting the hand
+version earns none.
+
+**Submit** both `classwork-2-1.qmd` and the rendered `classwork-2-1.pdf` to your
+course repository and push.
+
+# Reading the notation
+
+**(8 points)**
+
+Let $x = (3,\ 5,\ 2,\ 6)$, so $n = 4$.
+
+Compute each of the following by hand. Write out the sum explicitly — as an
+actual sum of four numbers — before you evaluate it.
+
+(a) $\displaystyle\sum_{i=1}^{4} x_i$, and then $\displaystyle \bar{x} = \frac{1}{n}\sum_{i=1}^{4} x_i$
+
+(b) $\displaystyle\sum_{i=1}^{4} 3x_i$. Compare it to your answer in (a). What
+rule does this illustrate?
+
+(c) $\displaystyle\sum_{i=1}^{4} x_i^2$
+
+(d) $\displaystyle\left(\sum_{i=1}^{4} x_i\right)^2$
+
+(e) $\displaystyle\sum_{i=1}^{4} (x_i - \bar{x})$
+
+::: {.callout-note appearance="minimal"}
+Parts (c) and (d) are different numbers. Part (e) has a surprise in it — do not
+round, just compute.
+:::
+
+(f) In one sentence: $\mu$ and $\bar{x}$ both mean "a mean." What is the
+difference between them?
+
+# The distribution of one random variable
+
+**(12 points)**
+
+A lender's records are organized by census tract. For a randomly drawn
+application, let $X$ be the number of bank branches in the applicant's tract
+and let $Y$ equal 1 if the application is denied and 0 if it is approved.
+
+Their **joint probability distribution** is:
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & $Y = 0$ (approved) & $Y = 1$ (denied) & $P(X = x)$ \\
+\midrule
+$X = 0$ & 0.10 & 0.14 & \\
+$X = 1$ & 0.20 & 0.10 & \\
+$X = 2$ & 0.26 & 0.06 & \\
+$X = 3$ & 0.12 & 0.02 & \\
+\midrule
+$P(Y = y)$ & & & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+(a) Fill in the margins. Sum across each row to get the distribution of $X$,
+and down each column to get the distribution of $Y$. Confirm that each set of
+margins sums to 1.
+
+(b) Compute the expected number of branches. Write out all four terms.
+
+$$
+E(X) = \mu_X = \sum_{i} x_i\, P(X = x_i) = \rule{6em}{0.4pt}
+$$
+
+(c) Compute $E(X^2)$. Square the **values**; leave the probabilities alone.
+
+$$
+E(X^2) = \sum_{i} x_i^2\, P(X = x_i) = \rule{6em}{0.4pt}
+$$
+
+(d) Compute the variance and the standard deviation.
+
+$$
+\text{var}(X) = E(X^2) - \left[E(X)\right]^2 = \rule{6em}{0.4pt}
+\qquad\qquad
+\sigma_X = \sqrt{\text{var}(X)} = \rule{5em}{0.4pt}
+$$
+
+(e) $Y$ takes only the values 0 and 1. Using the definition of expected value,
+show that $E(Y) = P(Y = 1)$, then report $E(Y)$ for this distribution.
+
+# Two random variables together
+
+**(12 points)**
+
+Use the same table.
+
+(a) Compute two conditional probabilities:
+
+$$
+P(Y = 1 \mid X = 0) = \frac{P(X = 0,\, Y = 1)}{P(X = 0)} = \rule{5em}{0.4pt}
+\qquad\qquad
+P(Y = 1 \mid X = 3) = \rule{5em}{0.4pt}
+$$
+
+(b) In one or two sentences: compare those two numbers to the overall denial
+rate $P(Y = 1)$ you found in Question 2(e). What does the comparison tell you?
+
+(c) Compute $\text{var}(Y)$ and $\sigma_Y$, using the same shortcut as in 2(d).
+*(For a 0/1 variable, $Y^2 = Y$, so $E(Y^2) = E(Y)$.)*
+
+(d) Compute $E(XY) = \sum_x \sum_y x\,y\,P(X = x,\, Y = y)$.
+
+*Hint: every term with $y = 0$ contributes zero, and so does the $x = 0$ row.
+Three terms survive.*
+
+(e) Compute the covariance and the correlation.
+
+$$
+\text{cov}(X,Y) = E(XY) - \mu_X\mu_Y = \rule{5em}{0.4pt}
+\qquad\qquad
+\rho_{XY} = \frac{\text{cov}(X,Y)}{\sigma_X\,\sigma_Y} = \rule{5em}{0.4pt}
+$$
+
+(f) Interpret the **sign** of $\rho_{XY}$ in one sentence. Then, in one more
+sentence, say what this number does **not** establish.
+
+# Do it all in R
+
+**(8 points)**
+
+Reproduce every result above in R. Delete `#| eval: false` from each chunk as
+you complete it, fill in the blanks, and make sure the document renders from
+top to bottom.
+
+```{r}
+#| label: setup
+#| eval: false
+# Question 1
+x <- c(3, 5, 2, 6)
+
+n <- length(x)
+xbar <- sum(x) / n
+
+sum(x) # 1(a)
+sum(3 * x) # 1(b)
+sum(x^2) # 1(c)  square first, then add
+sum(x)^2 # 1(d)  add first, then square
+sum(x - xbar) # 1(e)
+```
+
+```{r}
+#| label: joint
+#| eval: false
+# Question 2 — the joint distribution as a matrix.
+# Rows are X = 0,1,2,3.  Columns are Y = 0,1.
+J <- matrix(
+  c(0.10, 0.14, 0.20, 0.10, 0.26, 0.06, 0.12, 0.02),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(X = 0:3, Y = 0:1)
+)
+
+xvals <- 0:3
+yvals <- 0:1
+
+sum(J) # must be 1
+
+px <- ____ # the margins of X   (hint: rowSums)
+py <- ____ # the margins of Y   (hint: colSums)
+
+px
+sum(px)
+py
+sum(py)
+```
+
+```{r}
+#| label: moments
+#| eval: false
+# Question 2(b)-(e)
+EX <- sum(____ * px) # E(X)
+EX2 <- sum(____ * px) # E(X^2)
+
+varX <- EX2 - ____
+sdX <- sqrt(varX)
+
+EY <- sum(yvals * py)
+
+c(EX = EX, EX2 = EX2, varX = varX, sdX = sdX, EY = EY)
+```
+
+```{r}
+#| label: two-variables
+#| eval: false
+# Question 3
+J["0", "1"] / px["0"] # 3(a)  P(Y = 1 | X = 0)
+J["3", "1"] / ____ #       P(Y = 1 | X = 3)
+
+varY <- EY * (1 - EY) # 3(c)
+sdY <- sqrt(varY)
+
+EXY <- sum(outer(xvals, yvals) * J) # 3(d)  outer() builds the table of x*y
+
+covXY <- EXY - ____ * ____ # 3(e)
+rho <- covXY / (sdX * ____)
+
+c(varY = varY, sdY = sdY, EXY = EXY, cov = covXY, rho = rho)
+```
+
+Below your final chunk, write two or three sentences comparing your hand
+answers to your R answers. Name any disagreement and say what caused it.
+
+# Submission checklist {.unnumbered}
+
+- [ ] Every `#| eval: false` removed and every blank filled in
+- [ ] Document renders top to bottom with no errors
+- [ ] Every hand calculation written in math mode, with the sum written out
+- [ ] Every "in one sentence" question actually answered in prose
+- [ ] Your name in the YAML header
+- [ ] Both `classwork-2-1.qmd` and `classwork-2-1.pdf` committed and pushed

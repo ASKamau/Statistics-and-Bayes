@@ -1,0 +1,978 @@
+---
+title: "Day 3 — Randomness, Expectation, and Two Variables at Once"
+subtitle: "ECON 300 · Applied Statistics for Economists"
+author: "Ari Kamau"
+date: "2026-09-22"
+format:
+  revealjs:
+    theme: default
+    slide-number: c/t
+    chalkboard: true
+    preview-links: auto
+    code-line-numbers: false
+    incremental: false
+    width: 1280
+    height: 720
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+set.seed(300)
+```
+
+::: {.notes}
+MASTER DECK. Every "You Try" slide is followed immediately by its solution
+slide. Present straight through; advance one slide to reveal the answer.
+
+Press S for speaker notes, B for the chalkboard, ESC for the overview.
+
+25 teaching slides. The Python appendix after slide 25 is not part of the
+count — do not present it, assign it.
+
+TIMING — the front third of this deck is notation, and it is the part he will
+be tempted to rush. Do not.
+0-10 News article
+10-35 Greek letters and sigma notation (slides 2-7) — this is the half hour
+      that pays for the rest of the term
+35-55 R foundation, You Try 2 (slides 8-11)
+55-60 Break
+60-85 Random variables, distributions, expectation (slides 12-18)
+85-100 Variance, linear functions (slides 19-20)
+100-120 Two random variables, covariance, You Try 4 (slides 21-25)
+
+IF YOU FALL BEHIND: cut slide 15 (continuous PDFs — Thursday opens on exactly
+this) and cut the second half of slide 20. Do NOT cut the Greek block and do NOT
+cut You Try 4 — covariance is the whole reason Chapter 2 exists.
+
+SOURCE: Stock & Watson, Introduction to Econometrics, Ch. 2.1-2.3.
+:::
+
+## This morning
+
+**Hour 1 · Theory**
+
+- Greek letters, and why they are not decoration
+- Summation notation
+- Random variables, distributions, expectation, variance
+- Two random variables: joint, conditional, covariance
+
+**Hour 2 · Code**
+
+- Building $\sum$, $\bar{x}$, and $s^2$ from their definitions in R
+- Simulating a random variable and checking the theory against it
+
+**Reading:** Stock & Watson §2.1–2.3 · **Due Monday 9/28:** Classwork 2-1
+
+::: {.notes}
+Say the honest version out loud: today is the day the course stops being about
+data and starts being about *uncertainty*. Everything before this was
+description. Everything after is inference.
+
+He has no statistics background. The single biggest failure mode in the next
+two hours is that he nods at notation he cannot read. Make him read every
+formula out loud, in English, before you touch it.
+:::
+
+## The working alphabet
+
+Econometrics is written in Greek. Not to be difficult — because we ran out of
+letters.
+
+| Letter | Name | What it almost always means |
+|---|---|---|
+| $\mu$ | mu | a population **mean** |
+| $\sigma$ | sigma | a population **standard deviation** |
+| $\sigma^2$ | sigma squared | a population **variance** |
+| $\Sigma$ | capital sigma | **"add up everything that follows"** |
+| $\rho$ | rho | a **correlation** |
+| $\pi$ | pi | a **probability** or population proportion |
+| $\beta$ | beta | a **slope** — the thing we spend the spring estimating |
+| $\varepsilon$ | epsilon | an **error** — what the model does not explain |
+| $\alpha$ | alpha | a **significance level** — our tolerance for being wrong |
+| $\theta$ | theta | a **generic parameter** — "some number we don't know" |
+
+::: {.notes}
+Read every row aloud. Have him say the names. "Mew," not "moo." "Sig-ma."
+"Row," not "roe-ho." "Bay-ta." "Ep-si-lon." "Thay-ta."
+
+This feels remedial. It is not. A student who cannot pronounce a symbol will
+not ask a question about it, and will quietly stop reading the textbook around
+week six.
+
+Point at the epsilon row and say: that letter is going to become your favorite
+thing in this course. It is where all the interesting economics hides.
+:::
+
+## Greek vs. Latin: the convention that runs the whole course
+
+> **Greek letters are truths you will never observe.**
+> **Latin letters are numbers you computed from a sample.**
+
+| You want to know | You will never see it | You compute this instead |
+|---|---|---|
+| Population mean | $\mu$ | $\bar{x}$ ("x-bar") |
+| Population variance | $\sigma^2$ | $s^2$ |
+| Population SD | $\sigma$ | $s$ |
+| Population correlation | $\rho$ | $r$ |
+| Population proportion | $\pi$ or $p$ | $\hat{p}$ ("p-hat") |
+
+. . .
+
+The **hat** $\hat{\ }$ means *estimated*. The **bar** $\bar{\ }$ means *averaged*.
+
+Every fight in statistics is about the distance between a Greek letter and its
+Latin partner.
+
+::: {.notes}
+This is the most important slide in the first month. Go to the chalkboard
+(press B).
+
+Draw two boxes. Left box: POPULATION, label it with mu and sigma, and write
+"unknowable" under it. Right box: SAMPLE, label it x-bar and s, write
+"computed, and wrong" under it. Draw an arrow from left to right labeled
+"sampling," and a dashed arrow back labeled "inference."
+
+Then say: the left box is not hidden because we are lazy. It is hidden because
+it does not exist as a list anywhere. There is no spreadsheet of every
+household that will ever apply for a mortgage.
+
+He will ask "so how do we ever know mu?" The answer is: we never do. We learn
+how far off x-bar is likely to be. That sentence is the entire second half of
+this course.
+:::
+
+## $\Sigma$ is an instruction, not a symbol
+
+$$
+\sum_{i=1}^{n} x_i \;=\; x_1 + x_2 + x_3 + \cdots + x_n
+$$
+
+Read it left to right, like a recipe:
+
+- $\sum$ — "add up"
+- $i = 1$ — "starting with the first one"
+- $n$ — "and stopping at the $n$-th one"
+- $x_i$ — "of this thing"
+
+. . .
+
+So if $x = (4, 7, 2, 9)$, then $n = 4$ and
+
+$$
+\sum_{i=1}^{4} x_i = 4 + 7 + 2 + 9 = 22
+$$
+
+And the mean is just $\displaystyle \bar{x} = \frac{1}{n}\sum_{i=1}^{n} x_i = \frac{22}{4} = 5.5$.
+
+::: {.notes}
+The subscript i is a counter, exactly like a loop index. It has no meaning of
+its own. Write on the board: sum over i of x_i equals sum over j of x_j equals
+sum over potato of x_potato. Same number.
+
+This gets a laugh and it kills a misconception that otherwise survives to the
+midterm — that the letter matters.
+
+If he has ever written a for loop in any language, say: sigma IS a for loop.
+We will write it both ways in the code hour.
+:::
+
+## Three rules you will use constantly
+
+**1. A constant summed $n$ times**
+
+$$\sum_{i=1}^{n} c = \underbrace{c + c + \cdots + c}_{n \text{ times}} = nc$$
+
+**2. Constants slide out front**
+
+$$\sum_{i=1}^{n} c\,x_i = c\sum_{i=1}^{n} x_i$$
+
+**3. Sums split across addition**
+
+$$\sum_{i=1}^{n} (x_i + y_i) = \sum_{i=1}^{n} x_i + \sum_{i=1}^{n} y_i$$
+
+. . .
+
+**And one trap:** $\displaystyle \sum x_i^2 \neq \left(\sum x_i\right)^2$.
+Square-then-add is not add-then-square.
+
+::: {.notes}
+Rule 1 is why n appears in the denominator of the mean at all — do the
+derivation on the board if there is time.
+
+The trap on the last line is the single most common arithmetic error in
+Chapter 2 homework, and it is the error that makes a variance come out
+negative. When his variance is negative later this term, this is why, 90% of
+the time.
+
+Make him verify the trap with numbers: x = (1,2,3). Sum of squares = 14. Square
+of the sum = 36. Not close.
+:::
+
+## You Try 1 — Read the notation
+
+Let $x = (3, 5, 2, 6)$ and $y = (1, 4, 4, 1)$.
+
+Compute each by hand. Write out the sum explicitly before you evaluate it.
+
+::: {.columns}
+::: {.column width="50%"}
+**(a)** $\displaystyle\sum_{i=1}^{4} x_i$
+
+**(b)** $\displaystyle\sum_{i=1}^{4} 3x_i$
+
+**(c)** $\displaystyle\sum_{i=1}^{4} x_i^2$
+:::
+::: {.column width="50%"}
+**(d)** $\displaystyle\left(\sum_{i=1}^{4} x_i\right)^2$
+
+**(e)** $\displaystyle\sum_{i=1}^{4} x_i y_i$
+
+**(f)** $\displaystyle\sum_{i=1}^{4} (x_i - \bar{x})$
+:::
+:::
+
+::: {.callout-note appearance="minimal"}
+Part (f) has a surprise in it. Do not round — just compute.
+:::
+
+::: {.notes}
+Give him five minutes. Do not help. Watch for whether he writes the sums out or
+jumps to the number; insist on writing them out.
+
+Part (f) is the setup. The answer is exactly zero, always, for any data, and he
+should discover that himself rather than be told. If he gets zero and looks
+suspicious, that is the correct reaction.
+:::
+
+## Solution 1
+
+**(a)** $3 + 5 + 2 + 6 = \mathbf{16}$, so $\bar{x} = 16/4 = 4$
+
+**(b)** $9 + 15 + 6 + 18 = \mathbf{48} = 3 \times 16$ ✓ (rule 2)
+
+**(c)** $9 + 25 + 4 + 36 = \mathbf{74}$
+
+**(d)** $16^2 = \mathbf{256}$ — **not 74.** The trap.
+
+**(e)** $(3)(1) + (5)(4) + (2)(4) + (6)(1) = 3 + 20 + 8 + 6 = \mathbf{37}$
+
+**(f)** $(3-4) + (5-4) + (2-4) + (6-4) = -1 + 1 - 2 + 2 = \mathbf{0}$
+
+. . .
+
+::: {.callout-important}
+**(f) is zero for every dataset that has ever existed.** Deviations from the
+mean always cancel. That is what "mean" *means* — it is the balance point.
+
+This is why variance squares the deviations first. Without the square, the
+measure of spread would be zero for everything.
+:::
+
+::: {.notes}
+Land part (f) hard. This is the motivation for the entire definition of
+variance and he should feel it as a discovery, not a rule.
+
+Chalkboard: draw a seesaw with the four values as weights on a number line and
+the mean as the fulcrum. Physically balanced. That is the whole idea.
+
+Then pose the question that slide 19 answers: if we need a number that measures
+spread and does not cancel, what are our options? He will suggest absolute
+value. That is a real answer (it is the mean absolute deviation) and the honest
+response is: squaring wins because it has better algebra, not because it is more
+natural. Say so. Do not pretend squaring is obvious.
+:::
+
+## Code foundation: $\Sigma$ two ways
+
+```{r}
+#| label: sigma-two-ways
+x <- c(3, 5, 2, 6)
+
+# Way 1: the literal loop — this IS sigma notation
+total <- 0
+for (i in 1:length(x)) {
+  total <- total + x[i]
+}
+total
+
+# Way 2: vectorized — what you will actually write
+sum(x)
+```
+
+. . .
+
+R works on **whole vectors at once**. This is the mental shift:
+
+```{r}
+#| label: vectorized
+x^2 # squares every element
+x - mean(x) # subtracts the mean from every element
+sum(x^2) # square first, THEN add  -->  74
+sum(x)^2 # add first, THEN square  -->  256
+```
+
+::: {.notes}
+Run this live. The last two lines are the trap from You Try 1, now in code.
+
+The loop is here for exactly one reason: so that sigma stops being abstract.
+Never write it again after today.
+
+If he asks why `1:length(x)` and not `seq_along(x)` — good question, seq_along
+is safer for empty vectors, mention it and move on. Do not detour.
+:::
+
+## Code foundation: build the mean and variance from scratch
+
+```{r}
+#| label: from-scratch
+#| eval: false
+income <- c(76.5, 91.2, 106.8, 78.9, 84.3)
+
+n <- length(income)
+xbar <- sum(income) / n # the definition
+devs <- income - xbar # deviations
+sum(devs) # should be ~0 (You Try 1f)
+s2 <- sum(devs^2) / (n - 1) # sample variance
+
+c(xbar = xbar, s2 = s2, s = sqrt(s2))
+
+# Now check against the built-ins
+c(mean = mean(income), var = var(income), sd = sd(income))
+```
+
+::: {.callout-tip appearance="minimal"}
+`sum(devs)` will print something like `-1.4e-14`, not `0`. That is floating-point
+arithmetic, not a mistake — a computer stores decimals approximately.
+:::
+
+::: {.notes}
+He needs to see the `1.4e-14` and be told what it is, because he WILL see it on
+the homework and he WILL think he broke something.
+
+Say: computers store numbers in binary, and 0.1 in binary is a repeating
+decimal the same way 1/3 is in base 10. So sums of decimals accumulate tiny
+error. Anything below about 1e-10 in this course is zero.
+:::
+
+## You Try 2 — Fill in the blanks
+
+The sample variance is
+
+$$
+s^2 = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \bar{x})^2
+$$
+
+Complete this so it runs, then confirm it matches `var()`.
+
+```{r}
+#| label: you-try-2
+#| eval: false
+y <- c(12, 15, 9, 18, 11, 15)
+
+n <- ____
+ybar <- ____
+s2 <- sum(____) / ____
+
+c(mine = s2, builtin = var(y))
+```
+
+Then answer in one sentence: **why $n-1$ and not $n$?**
+
+::: {.notes}
+Five minutes, hands off.
+
+The n-1 question does not have a satisfying answer at this level and he should
+not be given a hand-wave. The honest version, which is on the next slide: we
+already used the data once to compute x-bar, so the deviations are not free —
+knowing n-1 of them determines the last one (that is You Try 1f again). We have
+n-1 independent pieces of information about spread, not n.
+
+Dividing by n would make s^2 systematically too small — biased. We prove that
+in the spring. Today he just needs the intuition and the fact that it is a
+real theorem, not a convention.
+:::
+
+## Solution 2
+
+```{r}
+#| label: you-try-2-soln
+y <- c(12, 15, 9, 18, 11, 15)
+
+n <- length(y)
+ybar <- sum(y) / n
+s2 <- sum((y - ybar)^2) / (n - 1)
+
+c(mine = s2, builtin = var(y))
+```
+
+. . .
+
+**Why $n-1$:** you spent one piece of information computing $\bar{x}$. Once you
+know $n-1$ of the deviations, the last one is forced — they must sum to zero.
+So you have $n-1$ free deviations, not $n$.
+
+Dividing by $n$ makes $s^2$ **systematically too small**. Dividing by $n-1$
+fixes it exactly. We prove that in the spring.
+
+::: {.notes}
+"Degrees of freedom" is the name for the number of free deviations. Say the
+phrase once, write it on the board, and tell him he will meet it again on
+Thursday when we hit the t distribution and again every week after that.
+
+Do not define degrees of freedom rigorously. Nobody can, at this level, without
+lying.
+:::
+
+## §2.1 — What is a random variable?
+
+An **experiment** is any process with an uncertain outcome.
+The **sample space** is the set of all outcomes that could happen.
+An **event** is a subset of outcomes you care about.
+
+. . .
+
+A **random variable** is a rule that attaches a **number** to each outcome.
+
+| Experiment | Random variable $Y$ | Values |
+|---|---|---|
+| One mortgage application | Denied? | $0$ or $1$ |
+| One census tract | Number of bank branches | $0, 1, 2, \ldots$ |
+| One household | Annual income | any $y \ge 0$ |
+
+. . .
+
+**Discrete** — countable list of values. **Continuous** — any value in a range.
+
+::: {.notes}
+The capital-letter/lowercase-letter convention matters and he will miss it if
+you do not say it: capital Y is the random variable, the thing before you look.
+Lowercase y is a particular value it took, after you looked.
+
+"P(Y = y)" therefore reads: the probability that the not-yet-observed thing
+turns out to equal this particular number.
+
+Concrete version: Y is "the denial outcome of the next application that walks
+in." y is "denied." Before the application arrives, Y is a distribution. After,
+it is a fact.
+:::
+
+## Discrete distributions, and the Bernoulli
+
+The **probability distribution** of a discrete $Y$ lists each value and its
+probability. Two requirements, always:
+
+$$
+0 \le p_i \le 1 \qquad\text{and}\qquad \sum_{i} p_i = 1
+$$
+
+. . .
+
+The **Bernoulli** is the simplest one there is — a single yes/no:
+
+$$
+Y = \begin{cases} 1 & \text{with probability } p \\ 0 & \text{with probability } 1-p \end{cases}
+$$
+
+```{r}
+#| label: bernoulli
+set.seed(300)
+denials <- rbinom(n = 10, size = 1, prob = 0.32) # 10 applications, 32% denial rate
+denials
+mean(denials) # the sample proportion — an estimate of p
+```
+
+::: {.notes}
+Run this twice with different seeds and let him watch the mean bounce around
+0.32 without landing on it. That bouncing IS the sampling distribution, which
+is Thursday's entire topic. Plant it now, do not explain it yet.
+
+The Bernoulli deserves a minute of respect: denied/approved, employed/not,
+default/no default, treated/control. Most binary economics is a Bernoulli, and
+its mean IS its probability. That last fact is not obvious and we prove it two
+slides from now.
+:::
+
+## The cumulative distribution function
+
+The **CDF** answers *"what is the probability of getting this value or less?"*
+
+$$
+F(y) = P(Y \le y)
+$$
+
+Branches per tract, from Classwork 2-1:
+
+| $y$ | $P(Y = y)$ | $F(y) = P(Y \le y)$ |
+|---|---|---|
+| 0 | 0.24 | 0.24 |
+| 1 | 0.30 | 0.54 |
+| 2 | 0.32 | 0.86 |
+| 3 | 0.14 | 1.00 |
+
+. . .
+
+The CDF only ever goes **up**, starts at 0, ends at 1. It is a running total.
+
+::: {.notes}
+"At most one branch" is 0.54. "At least two" is 1 - 0.54 = 0.46. Drill the
+complement — he will need it constantly and students reliably compute
+P(Y <= 2) when the question asked P(Y < 2).
+
+For a discrete variable those are different numbers: P(Y < 2) = 0.54,
+P(Y <= 2) = 0.86. For a continuous variable they are the same number, which is
+the next slide.
+
+This table is the marginal distribution of X on Monday's homework. Tell him so —
+he will see it again in four days and recognizing it is worth something.
+:::
+
+## Continuous variables: probability is area
+
+For a continuous $Y$, **$P(Y = 3.7) = 0$.** Exactly zero.
+
+There are infinitely many values; no single one can carry positive probability.
+
+. . .
+
+So we ask about **intervals** instead, and probability becomes **area under the
+probability density function (PDF)**:
+
+$$
+P(a \le Y \le b) = \text{area under } f(y) \text{ between } a \text{ and } b
+$$
+
+```{r}
+#| label: pdf-area
+#| echo: true
+#| fig-height: 2.6
+#| fig-width: 7
+#| fig-align: center
+ggplot(data.frame(y = c(20, 110)), aes(y)) +
+  stat_function(fun = dnorm, args = list(mean = 64, sd = 15)) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 64, sd = 15),
+    xlim = c(49, 79),
+    geom = "area",
+    fill = "steelblue",
+    alpha = .4
+  ) +
+  labs(x = "Tract median income ($000s)", y = "density") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.notes}
+The shaded region is P(49 <= income <= 79) = 0.68. He computes this exact number
+on Thursday and again on the homework.
+
+The height of the curve is NOT a probability. Density can exceed 1 — draw a
+uniform on [0, 0.5] on the board, where the height is 2. Students find this
+genuinely upsetting and it is worth the two minutes.
+
+Because single points have zero probability, < and <= are interchangeable for
+continuous variables. Say it explicitly; it contradicts what you just drilled
+for discrete variables and he will notice.
+:::
+
+## §2.2 — Expected value
+
+The **expected value** of $Y$ is its long-run average — the probability-weighted
+mean of its values:
+
+$$
+E(Y) \;=\; \mu_Y \;=\; \sum_{i=1}^{k} y_i \, p_i
+$$
+
+. . .
+
+For the Bernoulli with $P(Y=1) = p$:
+
+$$
+E(Y) = (1)(p) + (0)(1-p) = p
+$$
+
+::: {.callout-important appearance="minimal"}
+**The mean of a 0/1 variable is the probability of a 1.** This is why
+`mean(denials)` estimates the denial rate. It is not a coincidence or a trick.
+:::
+
+::: {.notes}
+"Expected" is a terrible name and you should say so. The expected value of a
+fair die is 3.5, a number the die cannot produce. Nobody expects it. It is the
+long-run average, nothing more.
+
+The Bernoulli result is the single most useful fact in the first half of this
+course. Every proportion you ever estimate is a mean. Every test about a
+proportion is a test about a mean. Write it on the board and leave it up.
+:::
+
+## You Try 3 — Expected value by hand
+
+A bank's loss on a defaulted loan, in thousands of dollars:
+
+| Loss $y$ | 0 | 10 | 25 | 60 |
+|---|---|---|---|---|
+| $P(Y=y)$ | 0.55 | 0.25 | 0.15 | 0.05 |
+
+**(a)** Verify this is a valid probability distribution.
+
+**(b)** Compute $E(Y)$ by hand. Write out all four terms.
+
+**(c)** Compute $E(Y^2)$ by hand. (Square the *values*, keep the same probabilities.)
+
+**(d)** The bank charges a flat \$9k fee on every defaulted loan. Is the fee
+enough to cover the average loss?
+
+::: {.notes}
+Seven minutes. Part (c) is the one he will get wrong — students square the
+probabilities. Watch for it and say nothing until the reveal.
+
+Part (d) is the point of the whole exercise. The modal outcome is zero loss —
+55% of the time the bank loses nothing. A student reasoning from the most
+likely case concludes the fee is generous. The expectation says otherwise. That
+gap between "most likely" and "on average" is what expectation is for.
+:::
+
+## Solution 3
+
+**(a)** $0.55 + 0.25 + 0.15 + 0.05 = 1.00$ ✓, all between 0 and 1 ✓
+
+**(b)** $E(Y) = (0)(0.55) + (10)(0.25) + (25)(0.15) + (60)(0.05)$
+$= 0 + 2.5 + 3.75 + 3.0 = \mathbf{9.25}$
+
+**(c)** $E(Y^2) = (0)(0.55) + (100)(0.25) + (625)(0.15) + (3600)(0.05)$
+$= 0 + 25 + 93.75 + 180 = \mathbf{298.75}$
+
+**(d)** The fee is \$9k; the average loss is \$9.25k. **The bank loses \$250
+per defaulted loan on average** — even though it loses nothing 55% of the time.
+
+```{r}
+#| label: you-try-3-soln
+y <- c(0, 10, 25, 60)
+p <- c(0.55, 0.25, 0.15, 0.05)
+c(total_p = sum(p), EY = sum(y * p), EY2 = sum(y^2 * p))
+```
+
+::: {.notes}
+Hold on (d). The fee looks fine under any casual reading of the table and it is
+not fine. One loan in twenty costs sixty thousand dollars, and that tail is
+carrying a third of the expectation by itself.
+
+Then say the thing that makes this an economics course: this is why tail risk
+is where the money is, and why a portfolio of these loans behaves nothing like
+any single one. That is Thursday.
+
+Keep E(Y^2) = 298.75 on the board. The next slide uses it.
+:::
+
+## Variance: spread that does not cancel
+
+$$
+\sigma_Y^2 \;=\; \text{var}(Y) \;=\; E\!\left[(Y - \mu_Y)^2\right] \;=\; \sum_i (y_i - \mu_Y)^2 p_i
+$$
+
+Squared deviations, probability-weighted. The square is there because
+unsquared deviations sum to zero (You Try 1f).
+
+. . .
+
+**The shortcut you will use constantly:**
+
+$$
+\boxed{\;\text{var}(Y) = E(Y^2) - \left[E(Y)\right]^2\;}
+$$
+
+For the loan losses: $\text{var}(Y) = 298.75 - (9.25)^2 = 298.75 - 85.5625 = 213.19$
+
+$$\sigma_Y = \sqrt{213.19} = 14.60 \text{ (thousand dollars)}$$
+
+::: {.notes}
+Derive the shortcut on the board — it is four lines and it uses all three
+summation rules from slide 6, so it doubles as a review:
+
+E[(Y-mu)^2] = E[Y^2 - 2*mu*Y + mu^2] = E(Y^2) - 2*mu*E(Y) + mu^2
+            = E(Y^2) - 2*mu^2 + mu^2 = E(Y^2) - mu^2.
+
+Point out that sigma = 14.6 is LARGER than mu = 9.25. For a right-skewed loss
+distribution that is normal and it tells you the average is a poor summary.
+
+Units: variance is in squared thousand-dollars, which is meaningless as a
+quantity. That is the only reason the standard deviation exists — to get back
+to dollars.
+:::
+
+## Linear functions: what happens under $a + bY$
+
+If $Z = a + bY$ for constants $a$ and $b$:
+
+$$
+E(Z) = a + b\,E(Y) \qquad\qquad \text{var}(Z) = b^2\,\text{var}(Y) \qquad\qquad \sigma_Z = |b|\,\sigma_Y
+$$
+
+. . .
+
+**Adding a constant shifts the mean and does nothing to the spread.**
+**Multiplying scales both — but variance scales by the square.**
+
+. . .
+
+The bank's **net** loss after the \$9k fee is $Z = Y - 9$:
+
+$$E(Z) = 9.25 - 9 = 0.25 \qquad \text{var}(Z) = 213.19 \quad(\text{unchanged})$$
+
+::: {.notes}
+The b^2 is the thing to hammer. Double every loss and the variance quadruples.
+Students write var(2Y) = 2var(Y) constantly.
+
+Intuition for why a does nothing: shifting every value by the same amount moves
+the mean by that amount too, so every deviation from the mean is identical.
+Spread is about distances, and sliding a ruler does not change distances.
+
+This slide is also where standardization comes from — Thursday's Z = (Y-mu)/sigma
+is exactly a = -mu/sigma, b = 1/sigma. Flag it, do not develop it.
+:::
+
+## §2.3 — Two variables at once: the joint distribution
+
+Most economic questions are about **relationships**, which means two variables.
+
+$X$ = branches in a tract, $Y$ = application denied. Each cell is
+$P(X = x, Y = y)$ — the probability **both** happen:
+
+| | $Y=0$ (approved) | $Y=1$ (denied) | **$P(X=x)$** |
+|---|---|---|---|
+| $X=0$ | 0.10 | 0.14 | **0.24** |
+| $X=1$ | 0.20 | 0.10 | **0.30** |
+| $X=2$ | 0.26 | 0.06 | **0.32** |
+| $X=3$ | 0.12 | 0.02 | **0.14** |
+| **$P(Y=y)$** | **0.68** | **0.32** | **1.00** |
+
+. . .
+
+The **margins** are the row and column totals — the distribution of each
+variable on its own, ignoring the other.
+
+::: {.notes}
+Everything in the rest of this deck and all of Monday's homework comes off this
+one table. Do not move fast.
+
+The word "marginal" is literal: those numbers live in the margin of the table.
+That is the entire etymology and telling him kills the mystique.
+
+Have him verify that the interior sums to 1.00 and that each margin sums to 1.00
+separately. Three checks, thirty seconds, and it builds the habit of validating
+a table before computing from it.
+:::
+
+## Conditional distributions: the interesting part
+
+The **conditional distribution** of $Y$ given $X = x$ restricts attention to one
+row and renormalizes it:
+
+$$
+P(Y = y \mid X = x) = \frac{P(X = x,\, Y = y)}{P(X = x)}
+$$
+
+. . .
+
+$$
+P(Y=1 \mid X=0) = \frac{0.14}{0.24} = 0.583
+\qquad\qquad
+P(Y=1 \mid X=3) = \frac{0.02}{0.14} = 0.143
+$$
+
+. . .
+
+::: {.callout-important appearance="minimal"}
+A tract with no bank branch has a **58% denial rate**. A tract with three has
+**14%**. The unconditional rate — 32% — describes neither of them.
+:::
+
+The **conditional expectation** $E(Y \mid X = x)$ is just the mean of that
+row's distribution. For a 0/1 variable it *is* the conditional probability.
+
+::: {.notes}
+Stop here. This is the slide where econometrics starts being about something.
+
+The marginal denial rate of 32% is a fact about nobody. It is an average over
+two very different populations. Everything we do from here — regression,
+controls, fixed effects, all of it — is a machine for computing conditional
+expectations.
+
+Then, because he is going to want to say it: this is a correlation. The table
+cannot tell you whether branches cause approvals, whether banks open branches
+where credit is already good, or whether some third thing drives both. Say the
+three stories out loud and refuse to pick one. That refusal is the course.
+:::
+
+## Covariance and correlation
+
+**Covariance** measures whether $X$ and $Y$ move together:
+
+$$
+\text{cov}(X,Y) = \sigma_{XY} = E\big[(X - \mu_X)(Y - \mu_Y)\big] = E(XY) - \mu_X\mu_Y
+$$
+
+Positive: above-average $X$ comes with above-average $Y$. Negative: opposite.
+
+. . .
+
+**The problem:** covariance has units — here, *branches × denial-indicator*.
+Rescale $X$ and the number changes. So we standardize:
+
+$$
+\text{corr}(X,Y) = \rho_{XY} = \frac{\sigma_{XY}}{\sigma_X \sigma_Y}
+\qquad\qquad -1 \le \rho \le 1
+$$
+
+. . .
+
+::: {.callout-warning appearance="minimal"}
+$\rho = 0$ means no **linear** relationship. It does **not** mean independent.
+$Y = X^2$ on symmetric $X$ has $\rho = 0$ and $Y$ is a perfect function of $X$.
+:::
+
+::: {.notes}
+Correlation is covariance with the units divided out. That is the whole idea and
+it is worth saying in exactly those words.
+
+The rho = 0 warning is the one students carry a wrong version of for years.
+Draw the parabola on the board: X uniform on -3..3, Y = X^2. Perfectly
+determined, zero correlation. Correlation is a linear instrument and it is blind
+to everything else.
+
+The converse IS true: independent implies rho = 0. One direction only.
+:::
+
+## You Try 4 — Work the joint table
+
+Using the branches × denial table on slide 21:
+
+**(a)** Compute $E(X)$ and $E(X^2)$, then $\text{var}(X)$ and $\sigma_X$.
+
+**(b)** Compute $E(Y)$, $\text{var}(Y)$, $\sigma_Y$. *(Remember: $Y$ is Bernoulli.)*
+
+**(c)** Compute $E(XY) = \sum_x \sum_y xy \cdot P(X{=}x, Y{=}y)$.
+*Hint: every term with $y = 0$ is zero. Four terms survive.*
+
+**(d)** Compute $\text{cov}(X,Y)$ and $\rho_{XY}$.
+
+**(e)** One sentence: what does the sign of $\rho$ say, and what does it *not* say?
+
+::: {.notes}
+Ten minutes. This is the longest You Try of the day and it is the rehearsal for
+Monday's homework — Classwork 2-1 asks for exactly this structure on the same
+table, plus the conditional and iterated-expectation parts.
+
+The hint in (c) is load-bearing. Without it he multiplies sixteen terms and
+makes an arithmetic error, and the lesson gets lost in the arithmetic.
+
+If he is stuck on (b): Y is Bernoulli with p = 0.32, so E(Y) = 0.32 and
+var(Y) = p(1-p) = 0.32 x 0.68. He can also grind it out the long way; both
+should give 0.2176 and that agreement is worth showing him.
+:::
+
+## Solution 4
+
+**(a)** $E(X) = 0(.24) + 1(.30) + 2(.32) + 3(.14) = 1.36$;
+$E(X^2) = .30 + 1.28 + 1.26 = 2.84$
+$\text{var}(X) = 2.84 - 1.36^2 = 0.9904$, $\;\sigma_X = 0.9952$
+
+**(b)** $E(Y) = 0.32$; $\text{var}(Y) = (.32)(.68) = 0.2176$, $\;\sigma_Y = 0.4665$
+
+**(c)** $E(XY) = 1(.10) + 2(.06) + 3(.02) = 0.28$
+
+**(d)** $\text{cov} = 0.28 - (1.36)(0.32) = \mathbf{-0.1552}$;
+$\;\rho = \dfrac{-0.1552}{(0.9952)(0.4665)} = \mathbf{-0.334}$
+
+**(e)** More branches, lower denial rate, moderately. It says **nothing** about
+which one causes the other.
+
+::: {.callout-note appearance="minimal"}
+**Thursday:** the normal, $\chi^2$, $t$, and $F$ distributions; random sampling;
+the Law of Large Numbers and the Central Limit Theorem (§2.4–2.6).
+**Due Monday 9/28:** Classwork 2-1.
+:::
+
+::: {.notes}
+Verify in R live if there is time — the appendix has the vectorized version and
+it takes forty seconds.
+
+Closing line for the day: today you learned what a distribution IS. Thursday you
+learn which distributions actually show up and why the same bell curve keeps
+appearing no matter what you started with. That is the most surprising theorem
+in the subject and it is what makes statistics possible at all.
+
+Assign Classwork 2-1 and tell him the joint table is the same one. He should
+not be starting cold on Monday.
+:::
+
+# Appendix — the same thing in Python {visibility="uncounted"}
+
+::: {.notes}
+NOT part of the 25. Do not present. Assign as reading for the student who wants
+the second language, or use if the code hour finishes early.
+:::
+
+## Sums, means, variances in Python {visibility="uncounted"}
+
+```python
+import numpy as np
+
+x = np.array([3, 5, 2, 6])
+
+x.sum()                 # 16
+(x**2).sum()            # 74   square first, then add
+x.sum()**2              # 256  add first, then square
+(x - x.mean()).sum()    # ~0
+
+y = np.array([12, 15, 9, 18, 11, 15])
+n    = len(y)
+ybar = y.sum() / n
+s2   = ((y - ybar)**2).sum() / (n - 1)
+
+s2, np.var(y, ddof=1)   # ddof=1 is the n-1 divisor; numpy defaults to n
+```
+
+::: {.callout-warning appearance="minimal"}
+`np.var()` divides by $n$ by default. R's `var()` divides by $n-1$. You must
+pass `ddof=1` to get the sample variance. This mismatch has broken real papers.
+:::
+
+## Expectation and covariance in Python {visibility="uncounted"}
+
+```python
+import numpy as np
+
+# Loan losses
+y = np.array([0, 10, 25, 60])
+p = np.array([0.55, 0.25, 0.15, 0.05])
+
+EY  = (y * p).sum()          # 9.25
+EY2 = (y**2 * p).sum()       # 298.75
+varY = EY2 - EY**2           # 213.19
+
+# Joint distribution: rows = X (0,1,2,3), cols = Y (0,1)
+J = np.array([[.10, .14],
+              [.20, .10],
+              [.26, .06],
+              [.12, .02]])
+
+x = np.arange(4); yv = np.arange(2)
+px, py = J.sum(axis=1), J.sum(axis=0)
+
+EX  = (x * px).sum()                     # 1.36
+EX2 = (x**2 * px).sum()                  # 2.84
+EYb = (yv * py).sum()                    # 0.32
+EXY = (np.outer(x, yv) * J).sum()        # 0.28
+
+cov  = EXY - EX * EYb                    # -0.1552
+corr = cov / (np.sqrt(EX2 - EX**2) * np.sqrt(EYb - EYb**2))   # -0.334
+```

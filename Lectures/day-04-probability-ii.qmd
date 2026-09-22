@@ -1,0 +1,1011 @@
+---
+title: "Day 4 — The Named Distributions, and Why Averages Behave"
+subtitle: "ECON 300 · Applied Statistics for Economists"
+author: "Ari Kamau"
+date: "2026-09-24"
+format:
+  revealjs:
+    theme: default
+    slide-number: c/t
+    chalkboard: true
+    preview-links: auto
+    code-line-numbers: false
+    incremental: false
+    width: 1280
+    height: 720
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+set.seed(300)
+```
+
+::: {.notes}
+MASTER DECK. Every "You Try" slide is followed immediately by its solution
+slide. Present straight through; advance one slide to reveal the answer.
+
+Press S for speaker notes, B for the chalkboard, ESC for the overview.
+
+25 teaching slides. The Python appendix after slide 25 is not part of the count.
+
+TIMING — this deck back-loads. The payoff is slides 21-25 and you must arrive
+there with thirty minutes left.
+0-10 News article
+10-25 Greek round two, d/p/q/r family (slides 2-6)
+25-50 Normal distribution, standardizing, You Try 2 (slides 7-10)
+50-60 chi-squared, t, F, the summary table (slides 11-14) — FAST. Catalogue,
+      not theory.
+60-65 Break
+65-90 Random sampling through You Try 3 (slides 15-20)
+90-120 LLN, CLT, You Try 4, wrap (slides 21-25)
+
+IF YOU FALL BEHIND: compress slides 11-13 onto slide 14's table and say the
+three distributions are catalogued, not derived — we meet them again when we
+need them. Do NOT cut You Try 3 or the CLT simulation. Those two are the entire
+point of the day.
+
+SOURCE: Stock & Watson, Introduction to Econometrics, Ch. 2.4-2.6.
+:::
+
+## This morning
+
+**Hour 1 · Theory**
+
+- The four distributions with names: normal, $\chi^2$, $t$, $F$
+- Standardizing: turning any normal into *the* normal
+- Random sampling, i.i.d., and $\bar{Y}$ as a random variable
+- The Law of Large Numbers and the Central Limit Theorem
+
+**Hour 2 · Code**
+
+- `dnorm` / `pnorm` / `qnorm` / `rnorm` — the four questions
+- Simulating a sampling distribution, and watching the CLT happen
+
+**Reading:** Stock & Watson §2.4–2.6 · **Due Monday 9/28:** Classwork 2-1
+
+::: {.notes}
+Frame the day in one sentence: Tuesday was about what a distribution is; today
+is about which ones actually show up, and why the same bell curve keeps
+appearing no matter what you started with.
+
+The CLT is the most surprising theorem he will meet this term. Do not spoil it
+on slide 1 — just promise it.
+:::
+
+## Greek, round two
+
+Tuesday's letters plus the ones that show up in distribution theory:
+
+| Letter | Name | What it means here |
+|---|---|---|
+| $\Phi$ | capital Phi | the **standard normal CDF** — $\Phi(z) = P(Z \le z)$ |
+| $\phi$ | lowercase phi | the standard normal **PDF** (the curve itself) |
+| $\chi^2$ | chi-squared | a distribution built from **squared** normals |
+| $\nu$ | nu | **degrees of freedom** — how many free pieces of information |
+| $\alpha$ | alpha | **significance level** — the error rate we accept |
+| $\mu,\ \sigma^2,\ \rho$ | | from Tuesday: mean, variance, correlation |
+
+. . .
+
+And one Latin letter doing Greek work: **$Z$** always means a standardized
+variable — mean 0, standard deviation 1.
+
+::: {.notes}
+"Chi" rhymes with "sky," not "chee." "Nu" like "new." Capital Phi is "fye"
+(or "fee" — both are said, do not make it a thing).
+
+The Phi/phi distinction is worth thirty seconds because both appear on the same
+page of Stock & Watson and they are different objects: little phi is the curve,
+big Phi is the running area under it. He will meet them as dnorm and pnorm in
+four slides.
+
+Degrees of freedom: he met this on Tuesday as n-1 in the variance. Same idea,
+new symbol. Remind him rather than re-explaining.
+:::
+
+## Where we are
+
+Tuesday: a distribution is a complete description of a random variable —
+every value and its probability, summarized by $\mu$ and $\sigma^2$.
+
+. . .
+
+**The gap we have not crossed:**
+
+::: {.columns}
+::: {.column width="48%"}
+**What we can describe**
+
+$\mu$, $\sigma^2$, $\rho$ — the truth about a population
+
+Requires knowing the whole population
+:::
+::: {.column width="48%"}
+**What we can compute**
+
+$\bar{x}$, $s^2$, $r$ — from $n$ observations
+
+One sample, and the wrong one
+:::
+:::
+
+. . .
+
+Today builds the bridge. The key move: **$\bar{Y}$ is itself a random variable,
+with its own distribution.**
+
+::: {.notes}
+This slide is the hinge of the whole course and it is easy to present as
+throat-clearing. Do not.
+
+Chalkboard (B): draw the population box and the sample box from Tuesday. Then
+draw THREE sample boxes, each giving a different x-bar. Write those three
+numbers down. Then circle them and say: those numbers are themselves a
+dataset. They have a mean. They have a spread. That distribution is the object
+we study today, and it is what makes inference possible.
+
+He will find "x-bar has a distribution" genuinely strange. Sit in the
+strangeness for a minute; it is the correct reaction and rushing past it is how
+students end up unable to explain a standard error three years later.
+:::
+
+## Code foundation: the d/p/q/r family
+
+Every distribution in R comes with four functions. The suffix names the
+distribution; the prefix names the **question**.
+
+| Prefix | Question | For the normal |
+|---|---|---|
+| `d` | *How tall is the curve here?* (density) | `dnorm(x, mean, sd)` |
+| `p` | *How much area is to the LEFT?* (probability) | `pnorm(q, mean, sd)` |
+| `q` | *What value has this much area to its left?* (quantile) | `qnorm(p, mean, sd)` |
+| `r` | *Give me random draws.* | `rnorm(n, mean, sd)` |
+
+. . .
+
+```{r}
+#| label: dpqr
+pnorm(1.96)              # area left of 1.96 on a standard normal
+qnorm(0.975)             # the value with 97.5% of area to its left
+round(rnorm(5, 64, 15), 1)   # 5 draws from N(64, 15^2)
+```
+
+::: {.notes}
+`p` and `q` are inverses of each other and that is the fact to nail. pnorm takes
+a value and returns a probability; qnorm takes a probability and returns a
+value. pnorm(qnorm(0.3)) = 0.3.
+
+Same four prefixes work for every distribution in R: pt, qt, rt, dt for the t;
+pchisq, qchisq for chi-squared; pbinom, rbinom for the binomial. Learn the
+pattern once, get every distribution free. Say that explicitly — it saves him
+memorizing forty function names.
+
+pnorm(1.96) = 0.975 is going to be the most-used number of his statistical life.
+Point at it now.
+:::
+
+## You Try 1 — Which function?
+
+Tract median income is $Y \sim N(64, 15^2)$, in thousands.
+
+Match each question to the R call that answers it. Do not compute yet.
+
+::: {.columns}
+::: {.column width="52%"}
+**(a)** What fraction of tracts are below \$49k?
+
+**(b)** What income is at the 90th percentile?
+
+**(c)** Simulate 500 tracts.
+
+**(d)** What fraction fall between \$49k and \$79k?
+:::
+::: {.column width="44%"}
+`rnorm(500, 64, 15)`
+
+`qnorm(0.90, 64, 15)`
+
+`pnorm(49, 64, 15)`
+
+`pnorm(79, 64, 15) - pnorm(49, 64, 15)`
+:::
+:::
+
+::: {.notes}
+Three minutes, and it is a warm-up, not a test.
+
+(d) is the one that requires thought: there is no "area between" function, so
+you subtract two left-areas. Draw it on the board — big area minus small area
+leaves the middle strip. This trick is used on every normal problem forever.
+:::
+
+## Solution 1
+
+```{r}
+#| label: you-try-1-soln
+pnorm(49, 64, 15)                              # (a) below $49k
+qnorm(0.90, 64, 15)                            # (b) 90th percentile
+pnorm(79, 64, 15) - pnorm(49, 64, 15)          # (d) between
+head(round(rnorm(500, 64, 15), 1), 8)          # (c) first 8 of 500 draws
+```
+
+. . .
+
+**(a)** 15.9% — about one tract in six.
+**(b)** \$83.2k.
+**(d)** 68.3% — and that number is not a coincidence. Next slide.
+
+::: {.notes}
+Land the 0.683. He should feel it as suspicious before you explain it. 49 and 79
+are exactly one standard deviation either side of 64, and the answer came out at
+the number everyone half-remembers from high school.
+
+That is the 68-95-99.7 rule and it is slide 9. Do not explain it yet — let the
+number hang for ten seconds.
+:::
+
+## §2.4 — The normal distribution
+
+$$
+Y \sim N(\mu,\ \sigma^2)
+$$
+
+Read: "$Y$ is distributed normal with mean $\mu$ and variance $\sigma^2$."
+
+. . .
+
+Two parameters and nothing else. $\mu$ slides the curve left and right;
+$\sigma$ makes it fat or thin. That is the entire family.
+
+```{r}
+#| label: normal-family
+#| echo: false
+#| fig-height: 2.8
+#| fig-width: 9
+#| fig-align: center
+ggplot(data.frame(y = c(10, 120)), aes(y)) +
+  stat_function(fun = dnorm, args = list(mean = 64, sd = 15), linewidth = .9) +
+  stat_function(fun = dnorm, args = list(mean = 64, sd = 7),
+                linewidth = .9, linetype = "dashed") +
+  stat_function(fun = dnorm, args = list(mean = 90, sd = 15),
+                linewidth = .9, linetype = "dotted") +
+  annotate("text", x = 64, y = .058, label = "N(64, 7²)", size = 4) +
+  annotate("text", x = 40, y = .020, label = "N(64, 15²)", size = 4) +
+  annotate("text", x = 108, y = .020, label = "N(90, 15²)", size = 4) +
+  labs(x = "Tract median income ($000s)", y = "density") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.notes}
+Symmetric, unimodal, tails that never quite touch zero. Mean = median = mode.
+
+The honest caveat, and say it today rather than letting him discover it in a
+referee report: income is NOT normal. It is right-skewed with a long upper tail.
+Nothing in economics that is bounded below by zero is normal.
+
+So why does the normal dominate the subject? Not because data are normal.
+Because AVERAGES are, and averages are what we estimate. That is the CLT, it is
+slide 22, and it is the answer to the objection he is about to raise.
+:::
+
+## Standardizing: one curve to rule them all
+
+Any normal becomes **the** standard normal by subtracting the mean and dividing
+by the standard deviation:
+
+$$
+Z = \frac{Y - \mu}{\sigma} \sim N(0, 1)
+$$
+
+. . .
+
+$Z$ answers: **how many standard deviations from the mean is this?**
+
+$$
+P(Y \le 49) = P\!\left(Z \le \frac{49 - 64}{15}\right) = P(Z \le -1) = \Phi(-1) = 0.159
+$$
+
+. . .
+
+**The 68–95–99.7 rule** — memorize this, it is your sanity check forever:
+
+| Within | of the mean | Contains |
+|---|---|---|
+| $\pm 1\sigma$ | | **68%** |
+| $\pm 2\sigma$ | | **95%** |
+| $\pm 3\sigma$ | | **99.7%** |
+
+::: {.notes}
+Standardizing is exactly the linear transformation from Tuesday's slide 20:
+a = -mu/sigma, b = 1/sigma. So E(Z) = 0 and var(Z) = (1/sigma^2)(sigma^2) = 1.
+Do that on the board — it closes the loop and it is only two lines.
+
+Before computers you HAD to standardize, because the back of the book had one
+table and it was for N(0,1). Now pnorm takes mean and sd directly. Standardizing
+survives anyway because z is interpretable: "2.3 standard deviations out" means
+something in any units, and "$83,000" does not.
+
+The 68-95-99.7 rule is how he catches his own errors. If R says a value one
+sigma out has 3% below it, R did not make a mistake — he typed something wrong.
+:::
+
+## You Try 2 — Normal probabilities by hand, then in code
+
+$Y \sim N(64, 15^2)$, tract median income in thousands.
+
+**(a)** Standardize \$79k and \$94k. Report both $z$ values.
+
+**(b)** Using **only** the 68–95–99.7 rule and symmetry, find
+$P(Y > 94)$. No calculator.
+
+**(c)** Again using only the rule, find $P(49 < Y < 94)$.
+
+**(d)** Now verify (b) and (c) with `pnorm()`.
+
+**(e)** A tract at \$82k — how many standard deviations above average, and
+roughly what percentile?
+
+::: {.notes}
+Eight minutes. The point of (b) and (c) is that he can do real normal
+calculations with no table and no computer, and that skill is what lets him
+smell a wrong answer.
+
+(b): 94 is two sigma above. 95% is within two sigma, so 5% is outside, split
+evenly between the tails by symmetry. 2.5% above. The exact answer is 2.28% and
+the rule got him to the right order of magnitude in ten seconds.
+
+(c): from -1 sigma to +2 sigma. Half of the 68% band plus half of the 95% band:
+34 + 47.5 = 81.5%. Exact is 81.9%.
+
+(e) z = 1.2, which is between the 68% and 95% marks, so somewhere around the
+88th percentile. Exact is 88.5%.
+:::
+
+## Solution 2
+
+**(a)** $z_{79} = \dfrac{79-64}{15} = 1.0$, $\qquad z_{94} = \dfrac{94-64}{15} = 2.0$
+
+**(b)** 95% lies within $\pm 2\sigma$ $\Rightarrow$ 5% outside $\Rightarrow$
+by symmetry **2.5% above**. (Exact: 2.28%)
+
+**(c)** From $-1\sigma$ to $+2\sigma$ = half of 68% + half of 95%
+$= 34\% + 47.5\% = \mathbf{81.5\%}$. (Exact: 81.9%)
+
+**(e)** $z = (82-64)/15 = 1.2$ — 1.2 SDs above the mean, about the **88th
+percentile**.
+
+```{r}
+#| label: you-try-2-soln
+c(b = 1 - pnorm(94, 64, 15),
+  c = pnorm(94, 64, 15) - pnorm(49, 64, 15),
+  e = pnorm(82, 64, 15))
+```
+
+::: {.notes}
+The rule got him within half a percentage point on every part, by hand, in under
+a minute. Say that out loud — it is the argument for memorizing it.
+
+This is also the first time he has produced an answer and then checked it
+against the machine and been right. That is the loop the whole course runs on.
+:::
+
+## The $\chi^2$ distribution
+
+Take $m$ independent standard normals. Square them. Add them up.
+
+$$
+W = Z_1^2 + Z_2^2 + \cdots + Z_m^2 \;\sim\; \chi^2_m
+$$
+
+. . .
+
+- Never negative — it is a sum of squares
+- Right-skewed, and $E(W) = m$
+- The single parameter $m$ is the **degrees of freedom**
+
+. . .
+
+**Where you meet it:** anything built from a *variance*. $s^2$ has a $\chi^2$
+distribution (scaled). Tests of several restrictions at once.
+
+```{r}
+#| label: chisq
+#| fig-height: 2.1
+#| fig-width: 8
+#| fig-align: center
+#| echo: false
+ggplot(data.frame(w = c(0, 30)), aes(w)) +
+  stat_function(fun = dchisq, args = list(df = 3), linewidth = .9) +
+  stat_function(fun = dchisq, args = list(df = 10), linewidth = .9, linetype = "dashed") +
+  annotate("text", x = 3.5, y = .20, label = "df = 3", size = 4) +
+  annotate("text", x = 15, y = .07, label = "df = 10", size = 4) +
+  labs(x = NULL, y = "density") + theme_minimal(base_size = 12)
+```
+
+::: {.notes}
+FAST. This is a catalogue entry, not a theory. He needs to recognize the name
+and know it is a sum of squares; everything else waits until he needs it.
+
+The one thing worth saying: it cannot be negative, which is why it is the
+natural distribution for a variance. Variances are sums of squares too.
+:::
+
+## The Student $t$ distribution
+
+A standard normal divided by (the square root of) an independent $\chi^2$ over
+its degrees of freedom:
+
+$$
+t_m = \frac{Z}{\sqrt{W/m}}, \qquad W \sim \chi^2_m
+$$
+
+. . .
+
+**In plain English:** the normal, but for when you had to *estimate* $\sigma$
+instead of knowing it. Estimating $\sigma$ adds uncertainty, and the $t$ pays
+for it with **fatter tails**.
+
+```{r}
+#| label: t-vs-z
+qt(0.975, df = 10)     # small sample: need to go further out
+qt(0.975, df = 30)
+qt(0.975, df = 100)
+qnorm(0.975)           # the limit
+```
+
+. . .
+
+**By $\nu \approx 30$ the $t$ is nearly normal.** This is why "$n > 30$" is a rule
+of thumb you will hear repeated — and repeated too confidently.
+
+::: {.notes}
+The t is where "1.96 versus 2.04" comes from and it is worth showing the numbers
+converge on screen — the printout does the teaching by itself.
+
+Small sample -> you know sigma badly -> you must go further out to be 95%
+confident. That sentence is the whole distribution.
+
+The n > 30 folklore: it is about how fast the t approaches the normal, and it
+gets misapplied to the CLT, which is a different claim with a different answer
+depending on skewness. Flag the conflation now; slide 23 settles it.
+:::
+
+## The $F$ distribution
+
+The ratio of two independent $\chi^2$s, each divided by its own degrees of
+freedom:
+
+$$
+F_{m,k} = \frac{W_1/m}{W_2/k}, \qquad W_1 \sim \chi^2_m,\; W_2 \sim \chi^2_k
+$$
+
+. . .
+
+**In plain English:** a ratio of two variances. It answers *"is this variance
+big relative to that one?"*
+
+- Never negative
+- **Two** degrees-of-freedom parameters — numerator and denominator
+- Where you meet it: testing **several coefficients at once** in a regression
+
+```{r}
+#| label: f-dist
+qf(0.95, df1 = 3, df2 = 60)    # critical value for testing 3 restrictions
+```
+
+::: {.notes}
+Catalogue entry. Twenty seconds.
+
+The only thing he needs to carry away: when you test one thing you get a t, when
+you test several things at once you get an F. He will meet it properly in the
+spring and it will make sense then because it will have a job.
+
+Do not derive anything here. There is nothing he can do with the derivation yet.
+:::
+
+## Which distribution answers which question
+
+| Distribution | Built from | Shows up when you | Parameters |
+|---|---|---|---|
+| **Normal** $N(\mu,\sigma^2)$ | — | ask about a mean, with $\sigma$ **known** | $\mu$, $\sigma^2$ |
+| **$\chi^2_m$** | sum of $m$ squared $Z$s | ask about a **variance** | $m$ |
+| **$t_m$** | $Z$ over root-$\chi^2$ | ask about a mean, $\sigma$ **estimated** | $m$ |
+| **$F_{m,k}$** | ratio of two $\chi^2$s | test **several** things at once | $m$, $k$ |
+
+. . .
+
+::: {.callout-note appearance="minimal"}
+All three of the others are built out of normals. That is not an accident —
+and after the next ten slides it will not even be surprising.
+:::
+
+::: {.notes}
+This table is the slide he photographs. Pause on it.
+
+The callout is the setup for the CLT. Everything in the theory is built from
+normals, and the CLT is the reason we are allowed to assume normals in the first
+place. The logic is circular-looking and is not: the CLT earns the assumption.
+
+If you are behind schedule, this table plus thirty seconds replaces slides
+11-13 entirely.
+:::
+
+## §2.5 — Random sampling
+
+We draw $n$ observations $Y_1, Y_2, \ldots, Y_n$ from a population.
+
+**Simple random sampling:** every member equally likely to be drawn, and draws
+do not influence each other.
+
+. . .
+
+That gives us **i.i.d.**:
+
+- **independent** — one draw tells you nothing about the next
+- **identically distributed** — every draw comes from the *same* distribution
+
+. . .
+
+::: {.callout-warning appearance="minimal"}
+i.i.d. is an **assumption about how the data were collected**, not a property
+you can test after the fact. Time series are not independent. Siblings are not
+independent. Convenience samples are not identically distributed.
+:::
+
+Before you look, each $Y_i$ is a **random variable**. So any function of them —
+including $\bar{Y}$ — is a random variable too.
+
+::: {.notes}
+The warning is the most practically important thing on this slide. Most bad
+applied work is an i.i.d. violation that nobody named. Clustered standard errors
+exist entirely because of it.
+
+Give one concrete failure: survey one household per block versus survey ten
+households on the same block. Same n, wildly different information, because
+neighbors resemble each other. The second sample is smaller than it looks.
+
+Then the last line, slowly: Y-bar is a function of random variables, so Y-bar is
+random. Next slide makes that precise.
+:::
+
+## The sampling distribution of $\bar{Y}$
+
+$$
+\bar{Y} = \frac{1}{n}\sum_{i=1}^{n} Y_i
+$$
+
+Draw a different sample, get a different $\bar{Y}$. Its distribution across all
+possible samples is the **sampling distribution**.
+
+. . .
+
+For i.i.d. draws from a population with mean $\mu$ and variance $\sigma^2$:
+
+$$
+\boxed{\;E(\bar{Y}) = \mu \qquad\qquad \text{var}(\bar{Y}) = \frac{\sigma^2}{n}
+\qquad\qquad \text{SD}(\bar{Y}) = \frac{\sigma}{\sqrt{n}}\;}
+$$
+
+. . .
+
+- **$E(\bar{Y}) = \mu$** — $\bar{Y}$ is right *on average*. It is **unbiased**.
+- **$\sigma/\sqrt{n}$** — this is the **standard error**. It shrinks with $n$,
+  but only as $\sqrt{n}$.
+
+::: {.notes}
+Two separate claims and he must not blur them. Unbiased is about the CENTER of
+the sampling distribution. The standard error is about its WIDTH. A biased
+estimator can have a tiny standard error and be useless — that is the dartboard
+from Day 2, and calling back to it makes the connection land.
+
+The square root is the expensive fact. To halve the standard error you need
+FOUR times the data. To cut it to a tenth, a hundred times. This is why survey
+research is expensive and why "just get more data" stops being good advice
+around n = 10,000.
+
+Have him compute it: n = 100 to n = 400 buys a halving. Make the number real.
+:::
+
+## Why $\text{var}(\bar{Y}) = \sigma^2/n$
+
+Three lines, using Tuesday's rules:
+
+$$
+\text{var}(\bar{Y}) = \text{var}\!\left(\frac{1}{n}\sum_{i=1}^n Y_i\right)
+= \frac{1}{n^2}\,\text{var}\!\left(\sum_{i=1}^n Y_i\right)
+$$
+
+. . .
+
+Because the draws are **independent**, the variance of the sum is the sum of the
+variances:
+
+$$
+= \frac{1}{n^2}\sum_{i=1}^n \text{var}(Y_i) = \frac{1}{n^2}\cdot n\sigma^2 = \frac{\sigma^2}{n}
+$$
+
+. . .
+
+::: {.callout-important appearance="minimal"}
+**Independence is doing all the work in step two.** If the draws are correlated,
+this line is false and every standard error you compute is wrong — usually too
+small, so you will be confident about nothing.
+:::
+
+::: {.notes}
+Step one is the b^2 rule from Tuesday's slide 20: the 1/n comes out as 1/n^2.
+Ask him to name the rule before you say it.
+
+Step two is the only new fact, and it is worth stating in general: for any X, Y,
+var(X + Y) = var(X) + var(Y) + 2cov(X, Y). Independence kills the covariance
+term. Write it on the board — it shows exactly what independence buys us and
+exactly what breaks without it.
+
+The callout deserves ten seconds of silence. Positively correlated draws mean
+the true variance is LARGER than sigma^2/n, so the reported standard error is
+too small, so the confidence interval is too narrow, so the researcher is
+overconfident. That failure mode is everywhere in published work.
+:::
+
+## Exactly normal, or approximately normal
+
+Those two results — $E(\bar{Y}) = \mu$ and $\text{var}(\bar{Y}) = \sigma^2/n$ —
+hold for **any** population. They say nothing about **shape**.
+
+. . .
+
+**Special case.** If the population itself is normal, $Y_i \sim N(\mu, \sigma^2)$,
+then for **every** $n$, even $n = 2$:
+
+$$
+\bar{Y} \sim N\!\left(\mu,\ \frac{\sigma^2}{n}\right) \qquad \text{exactly}
+$$
+
+Averaging normals gives you a normal. No approximation, no minimum sample size.
+
+. . .
+
+**General case.** The population is *not* normal — income, denials, counts,
+almost everything you will ever study. Then the shape of $\bar{Y}$ for small $n$
+is whatever it is, and we have no formula for it.
+
+::: {.callout-note appearance="minimal"}
+So: do we just give up on non-normal populations? That is the question the last
+three slides of this deck answer.
+:::
+
+::: {.notes}
+The distinction between the exact case and the general case is what makes the
+CLT feel necessary rather than decorative. Without this slide the CLT sounds
+like a convenience; with it, he can see the hole it fills.
+
+Say plainly: the exact result is nearly useless in practice, because populations
+in economics are not normal. It is on the slide so that he knows the CLT is
+doing real work and not restating something we already had.
+
+Then pose the question in the callout and do not answer it. Go to the break, or
+straight into You Try 3, with it open.
+:::
+
+## You Try 3 — Build a sampling distribution
+
+The population: 32% of applications are denied. So $Y_i \sim$ Bernoulli(0.32),
+$\mu = 0.32$, $\sigma^2 = (0.32)(0.68) = 0.2176$.
+
+**(a)** By hand, for $n = 100$: what are $E(\bar{Y})$ and $\text{SD}(\bar{Y})$?
+
+**(b)** Complete the code so it draws 10,000 samples of size 100 and records
+each sample's mean.
+
+```{r}
+#| label: you-try-3
+#| eval: false
+set.seed(300)
+sample_means <- replicate(10000, {
+  one_sample <- rbinom(n = ____, size = 1, prob = ____)
+  mean(one_sample)
+})
+
+c(mean = ____, sd = ____)     # compare to your part (a)
+```
+
+**(c)** Do the simulated numbers match your hand answers? Should they match
+*exactly*?
+
+::: {.notes}
+Ten minutes. This is the centerpiece of the day.
+
+(a) E = 0.32. SD = sqrt(0.2176/100) = sqrt(0.002176) = 0.0467.
+
+(c) is the question that matters. They will be close, not identical — 10,000
+replications is itself a sample, so the simulation has its own sampling error.
+A student who expects an exact match has not understood what a simulation is.
+
+If he finishes early, have him rerun with n = 25 and n = 400 and watch the SD
+double and halve. That is the sqrt(n) rule made visible.
+:::
+
+## Solution 3
+
+```{r}
+#| label: you-try-3-soln
+set.seed(300)
+sample_means <- replicate(10000, mean(rbinom(n = 100, size = 1, prob = 0.32)))
+
+c(sim_mean = mean(sample_means),   theory_mean = 0.32,
+  sim_sd   = sd(sample_means),     theory_sd   = sqrt(0.2176 / 100))
+```
+
+. . .
+
+**(a)** $E(\bar{Y}) = 0.32$; $\;\text{SD}(\bar{Y}) = \sqrt{0.2176/100} = 0.0467$
+
+**(c)** Close, not exact. 10,000 replications is *itself* a sample — the
+simulation has its own sampling error. Raise it to 1,000,000 and the gap
+shrinks; it never closes.
+
+::: {.notes}
+Point at the two pairs of numbers side by side. The formula he derived by hand
+three slides ago predicted the spread of a simulation to three decimal places.
+That is what it means for a theorem to be true about the world.
+
+Then the setup for the next slide: the population here is Bernoulli — it takes
+exactly two values, 0 and 1. It is about as far from a bell curve as a
+distribution can get. Ask what shape he expects sample_means to have. Let him
+guess wrong.
+:::
+
+## §2.6 — The Law of Large Numbers
+
+$$
+\bar{Y} \;\xrightarrow{p}\; \mu \qquad \text{as } n \to \infty
+$$
+
+As the sample grows, $\bar{Y}$ gets arbitrarily close to $\mu$ and **stays**
+there. The estimator is **consistent**.
+
+```{r}
+#| label: lln
+#| fig-height: 2.7
+#| fig-width: 9
+#| fig-align: center
+#| echo: false
+set.seed(300)
+draws <- rbinom(5000, 1, 0.32)
+tibble(n = 1:5000, running = cumsum(draws) / (1:5000)) |>
+  ggplot(aes(n, running)) +
+  geom_line(linewidth = .4) +
+  geom_hline(yintercept = 0.32, linetype = "dashed", colour = "firebrick") +
+  scale_x_log10() +
+  labs(x = "sample size (log scale)", y = "running mean") +
+  theme_minimal(base_size = 13)
+```
+
+::: {.notes}
+This is the formal version of the intuition he has had since slide 13 of
+Tuesday: more data, better estimate. Now it has a name and a guarantee.
+
+Read the plot with him. At n = 10 the running mean is all over the place. By
+n = 1000 it is pinned. The convergence is fast at first and then agonizingly
+slow — that is sqrt(n) again, visible.
+
+THE GAMBLER'S FALLACY, and it is worth the detour: the LLN does NOT say a run of
+approvals makes a denial "due." Each draw is independent. What happens is that
+early deviations get DILUTED by later draws, not corrected by them. The
+numerator never gets fixed; the denominator just grows. Say it in exactly those
+words.
+:::
+
+## The Central Limit Theorem
+
+$$
+\frac{\bar{Y} - \mu}{\sigma/\sqrt{n}} \;\xrightarrow{d}\; N(0,1)
+\qquad \text{as } n \to \infty
+$$
+
+. . .
+
+**For large enough $n$, $\bar{Y}$ is approximately normal — no matter what the
+population distribution looks like.**
+
+Skewed. Bimodal. Binary. Doesn't matter.
+
+. . .
+
+::: {.callout-important}
+This is why the normal distribution is everywhere in statistics. Not because
+data are normal — almost nothing is. Because **averages** are, and averages are
+what we estimate.
+:::
+
+**How large is "large enough"?** $n \approx 30$ for a symmetric population.
+Much larger for a badly skewed one. It is not a fixed number, whatever you have
+been told.
+
+::: {.notes}
+Slow down. This is the theorem.
+
+Say the strange part out loud: you can know nothing about the population's
+shape — you do not need to know it, you do not need to be able to draw it — and
+you still know the shape of the distribution of its average. Information appears
+from nowhere. It is the closest thing to magic in the subject and he should feel
+that.
+
+Then the practical consequence, which is what he will actually use: this is why
+we can build a confidence interval around a mean without knowing the population.
+Everything in the second half of the course rests on this slide.
+
+The n > 30 rule: for the Bernoulli(0.32) in You Try 3, n = 100 is plenty. For a
+Bernoulli(0.01) it is nowhere near enough — you would expect one success per
+sample. Skewness is what determines the answer.
+:::
+
+## You Try 4 — Watch the CLT happen
+
+The population is **Bernoulli(0.32)** — two values, 0 and 1. As non-normal as
+it gets.
+
+Run this and look at the four panels.
+
+```{r}
+#| label: you-try-4
+#| eval: false
+set.seed(300)
+
+clt_draw <- function(n) {
+  tibble(n = paste("n =", n),
+         ybar = replicate(4000, mean(rbinom(n, 1, 0.32))))
+}
+
+map_dfr(c(1, 5, 30, 200), clt_draw) |>
+  mutate(n = fct_inorder(n)) |>
+  ggplot(aes(ybar)) +
+  geom_histogram(bins = 30, fill = "steelblue", colour = "white") +
+  facet_wrap(~ n, scales = "free") +
+  labs(x = expression(bar(Y)), y = NULL) +
+  theme_minimal(base_size = 12)
+```
+
+**(a)** Describe the $n=1$ panel. Why does it look like that?
+**(b)** At what $n$ does it start looking normal?
+**(c)** The panels get *narrower* as $n$ grows. Which result is that?
+
+::: {.notes}
+Eight minutes. Make him actually run it and actually look.
+
+(a) n = 1 is just the population itself — two spikes at 0 and 1, heights 0.68
+and 0.32. The mean of one observation IS the observation.
+
+(b) n = 5 is lumpy (only six possible values: 0, .2, .4, .6, .8, 1). n = 30 is
+recognizably bell-shaped. n = 200 is clean.
+
+(c) Narrowing is the LLN and the sigma/sqrt(n) formula. The CLT is about SHAPE;
+the LLN is about LOCATION and the standard error is about WIDTH. Three distinct
+claims visible in one picture. Make him name which is which — that is the check
+on whether the last three slides landed.
+
+NOTE: scales = "free" is doing real work here. Without it the n = 1 panel
+flattens everything else. Point that out; it is also a lesson about honest plots.
+:::
+
+## Solution 4 — and what this buys you
+
+**(a)** Two spikes, at 0 and 1. With $n=1$ the "sample mean" is just the single
+observation, so the panel *is* the population distribution.
+
+**(b)** $n = 5$ is lumpy — only six values are possible. By $n = 30$ it is
+recognizably a bell. At $n = 200$ it is clean.
+
+**(c)** Narrowing is the **LLN** and $\sigma/\sqrt{n}$. The CLT governs the
+**shape**; the standard error governs the **width**. Two different theorems in
+one picture.
+
+::: {.notes}
+Make him name which panel feature belongs to which theorem before you advance.
+That is the check on whether the last three slides landed.
+
+If he gets (c) backwards — calling the narrowing "the CLT" — that is the single
+most common confusion in this chapter and it is worth two extra minutes now.
+:::
+
+## Chapter 2 on one page
+
+| Result | What it says | Why you care |
+|---|---|---|
+| $E(Y) = \sum y_i p_i$ | the long-run average | what a parameter *is* |
+| $\text{var}(Y) = E(Y^2) - \mu^2$ | spread, squared units | the shortcut you'll use daily |
+| $\rho = \sigma_{XY}/\sigma_X\sigma_Y$ | unit-free co-movement | but only **linear**, and never causal |
+| $E(\bar{Y}) = \mu$ | $\bar{Y}$ is **unbiased** | the center is right |
+| $\text{SD}(\bar{Y}) = \sigma/\sqrt{n}$ | the **standard error** | four times the data halves it |
+| **LLN** | $\bar{Y} \to \mu$ | the estimate is **consistent** |
+| **CLT** | $\bar{Y}$ becomes **normal** | why we can do inference at all |
+
+::: {.callout-note appearance="minimal"}
+**What you can now do:** take one sample, compute $\bar{Y}$ and $s$, and say
+something quantified about a $\mu$ you will never observe.
+
+**Next week:** estimation, confidence intervals, hypothesis tests — all of which
+are this table, applied.  ·  **Due Monday 9/28:** Classwork 2-1.
+:::
+
+::: {.notes}
+Closing line, and say it as the closing line: two days ago x-bar was a number
+you computed. Today it is a random variable whose distribution you can write
+down exactly. That shift is the whole subject.
+
+Assign Classwork 2-1. It uses Tuesday's joint table for Parts 1-4 and this
+morning's normal and sampling results for Parts 5-6, so nothing on it is new
+material. Tell him that — it changes how he approaches a sheet that looks long.
+
+Last two rows of the table are the ones to leave on screen while he packs up.
+:::
+
+# Appendix — the same thing in Python {visibility="uncounted"}
+
+::: {.notes}
+NOT part of the 25. Do not present. Assign as reading, or use if the code hour
+runs short.
+:::
+
+## The d/p/q/r family in Python {visibility="uncounted"}
+
+R's four prefixes become four **methods** on a frozen distribution object:
+
+```python
+import numpy as np
+from scipy import stats
+
+Y = stats.norm(loc=64, scale=15)      # N(64, 15^2)
+
+Y.pdf(64)          # dnorm  — height of the curve
+Y.cdf(49)          # pnorm  — 0.1587, area to the left
+Y.ppf(0.90)        # qnorm  — 83.22, the 90th percentile
+Y.rvs(size=500, random_state=300)     # rnorm — 500 draws
+
+Y.cdf(79) - Y.cdf(49)                 # 0.6827, the area between
+
+stats.norm.ppf(0.975)                 # 1.96
+stats.t.ppf(0.975, df=30)             # 2.042
+stats.chi2.ppf(0.95, df=3)            # 7.815
+stats.f.ppf(0.95, dfn=3, dfd=60)      # 2.758
+```
+
+::: {.callout-note appearance="minimal"}
+`ppf` = "percent point function" = R's `q`. The naming is worse; the behavior is
+identical.
+:::
+
+## Sampling distribution and the CLT in Python {visibility="uncounted"}
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+rng = np.random.default_rng(300)
+
+# You Try 3: 10,000 samples of size 100 from Bernoulli(0.32)
+sample_means = rng.binomial(1, 0.32, size=(10_000, 100)).mean(axis=1)
+
+sample_means.mean()            # ~0.32   theory: mu
+sample_means.std(ddof=1)       # ~0.0467 theory: sqrt(0.2176/100)
+
+# You Try 4: the CLT, four sample sizes
+fig, axes = plt.subplots(1, 4, figsize=(14, 3))
+for ax, n in zip(axes, [1, 5, 30, 200]):
+    ybar = rng.binomial(1, 0.32, size=(4000, n)).mean(axis=1)
+    ax.hist(ybar, bins=30, color="steelblue", edgecolor="white")
+    ax.set_title(f"n = {n}")
+plt.tight_layout()
+```
+
+::: {.callout-warning appearance="minimal"}
+`.std()` divides by $n$ unless you pass `ddof=1`. Same trap as Tuesday's
+`np.var()`. R's `sd()` always uses $n-1$.
+:::

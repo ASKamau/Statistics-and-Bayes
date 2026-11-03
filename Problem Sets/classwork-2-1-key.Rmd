@@ -1,0 +1,371 @@
+---
+title: "Classwork 2-1: Probability and Expectation — Answer Key"
+subtitle: "ECON 300 · Applied Statistics for Economists · Stock & Watson Ch. 2"
+author: "Instructor: Ari Kamau"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    number_sections: true
+    latex_engine: pdflatex
+geometry: margin=1in
+fontsize: 11pt
+papersize: letter
+colorlinks: true
+header-includes:
+  - \usepackage{amsmath,amssymb,booktabs}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+**Instructor copy — do not distribute.** 40 points total (Q1: 8 · Q2: 12 ·
+Q3: 12 · Q4: 8). All answers are rounded to four decimal places, as the
+assignment asks.
+
+Grading principle from the assignment: a hand/R disagreement that the student
+reports and diagnoses earns full credit. A hand answer that was quietly deleted
+earns none. Grading notes are set off as block quotes.
+
+# Reading the notation
+
+**(8 points)** $x = (3,\ 5,\ 2,\ 6)$, $n = 4$.
+
+**(a)**
+$$
+\sum_{i=1}^{4} x_i = 3 + 5 + 2 + 6 = 16
+\qquad\qquad
+\bar{x} = \frac{1}{n}\sum_{i=1}^{4} x_i = \frac{16}{4} = 4
+$$
+
+**(b)**
+$$
+\sum_{i=1}^{4} 3x_i = 3(3) + 3(5) + 3(2) + 3(6) = 9 + 15 + 6 + 18 = 48 = 3 \times 16
+$$
+
+This illustrates that **a constant factors out of a sum**:
+$\sum_i c\,x_i = c\sum_i x_i$.
+
+**(c)** Square first, then add:
+$$
+\sum_{i=1}^{4} x_i^2 = 3^2 + 5^2 + 2^2 + 6^2 = 9 + 25 + 4 + 36 = 74
+$$
+
+**(d)** Add first, then square:
+$$
+\left(\sum_{i=1}^{4} x_i\right)^2 = (3 + 5 + 2 + 6)^2 = 16^2 = 256
+$$
+
+(c) $\neq$ (d). The sum of squares is not the square of the sum.
+
+**(e)**
+$$
+\sum_{i=1}^{4} (x_i - \bar{x}) = (3-4) + (5-4) + (2-4) + (6-4) = -1 + 1 - 2 + 2 = 0
+$$
+
+The surprise: **deviations from the mean always sum to exactly zero.** This
+isn't a coincidence of these numbers. It holds for any data set, because
+$\sum_i (x_i - \bar{x}) = \sum_i x_i - n\bar{x} = n\bar{x} - n\bar{x} = 0$.
+
+**(f)** $\mu$ is the **population** mean, a fixed but usually unknown number
+describing the whole distribution. $\bar{x}$ is the **sample** mean, computed
+from the data we actually have and used to estimate $\mu$. It changes from
+sample to sample.
+
+> **Grading (8 pts):** (a) 1.5 · (b) 1.5 · (c) 1 · (d) 1 · (e) 1.5 · (f) 1.5.
+> Sums must be written out term by term; a bare final number earns half
+> credit. In (b) the student must *name* the rule, not just observe that 48 is
+> three times 16. In (e), a student who notes that the result is always zero
+> (with or without the algebra) earns full credit; the algebra is a bonus. In
+> (f), the key words are population vs. sample, or fixed parameter vs.
+> estimate from data.
+
+# The distribution of one random variable
+
+**(12 points)**
+
+**(a) Margins.**
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+ & $Y = 0$ (approved) & $Y = 1$ (denied) & $P(X = x)$ \\
+\midrule
+$X = 0$ & 0.10 & 0.14 & \textbf{0.24} \\
+$X = 1$ & 0.20 & 0.10 & \textbf{0.30} \\
+$X = 2$ & 0.26 & 0.06 & \textbf{0.32} \\
+$X = 3$ & 0.12 & 0.02 & \textbf{0.14} \\
+\midrule
+$P(Y = y)$ & \textbf{0.68} & \textbf{0.32} & 1.00 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Row sums: $0.10 + 0.14 = 0.24$, $0.20 + 0.10 = 0.30$, $0.26 + 0.06 = 0.32$,
+$0.12 + 0.02 = 0.14$. Column sums: $0.10 + 0.20 + 0.26 + 0.12 = 0.68$ and
+$0.14 + 0.10 + 0.06 + 0.02 = 0.32$.
+
+Checks: $0.24 + 0.30 + 0.32 + 0.14 = 1.00$ and $0.68 + 0.32 = 1.00$.
+
+**(b)**
+$$
+E(X) = \mu_X = \sum_i x_i\,P(X = x_i)
+= 0(0.24) + 1(0.30) + 2(0.32) + 3(0.14)
+= 0 + 0.30 + 0.64 + 0.42 = 1.36
+$$
+
+The expected number of branches in an applicant's tract is **1.36**.
+
+**(c)**
+$$
+E(X^2) = \sum_i x_i^2\,P(X = x_i)
+= 0^2(0.24) + 1^2(0.30) + 2^2(0.32) + 3^2(0.14)
+= 0 + 0.30 + 1.28 + 1.26 = 2.84
+$$
+
+**(d)**
+$$
+\text{var}(X) = E(X^2) - [E(X)]^2 = 2.84 - (1.36)^2 = 2.84 - 1.8496 = 0.9904
+$$
+$$
+\sigma_X = \sqrt{0.9904} \approx 0.9952
+$$
+
+**(e)** By definition,
+$$
+E(Y) = \sum_y y\,P(Y = y) = 0 \cdot P(Y = 0) + 1 \cdot P(Y = 1) = P(Y = 1)
+$$
+The $y = 0$ term vanishes, so the mean of a 0/1 variable is the probability it
+equals 1. Here, $E(Y) = P(Y = 1) = \mathbf{0.32}$: 32% of applications are
+denied.
+
+> **Grading (12 pts):** (a) 3 · (b) 2 · (c) 2 · (d) 3 · (e) 2.
+>
+> - (a) All six margins are required, plus both "sums to 1" checks.
+> - (c) **The classic error** is squaring the probabilities, or computing
+>   $[E(X)]^2 = 1.8496$ and calling it $E(X^2)$. Either one costs 2 pts.
+> - (d) Carry the error forward. If the student's (c) is wrong but (d) applies
+>   the formula correctly to it, give full credit for (d). A negative variance
+>   is a red flag the student should catch; if they catch it, give credit.
+> - (e) The derivation must show the $0 \cdot P(Y=0)$ term disappearing. A
+>   bare "0.32" earns 1 pt.
+
+# Two random variables together
+
+**(12 points)**
+
+**(a)**
+$$
+P(Y = 1 \mid X = 0) = \frac{P(X = 0,\, Y = 1)}{P(X = 0)} = \frac{0.14}{0.24} \approx 0.5833
+$$
+$$
+P(Y = 1 \mid X = 3) = \frac{P(X = 3,\, Y = 1)}{P(X = 3)} = \frac{0.02}{0.14} \approx 0.1429
+$$
+
+**(b)** The overall denial rate is 0.32. Applicants in tracts with **no**
+branches are denied 58% of the time, well above average. Applicants in tracts
+with **three** branches are denied only about 14% of the time, well below
+average. Denial and branch presence are therefore **not independent**:
+knowing $X$ changes the probability of denial. (If they were independent, both
+conditional probabilities would equal 0.32.)
+
+**(c)** Since $Y^2 = Y$, $E(Y^2) = E(Y) = 0.32$:
+$$
+\text{var}(Y) = E(Y^2) - [E(Y)]^2 = 0.32 - (0.32)^2 = 0.32 - 0.1024 = 0.2176
+$$
+$$
+\sigma_Y = \sqrt{0.2176} \approx 0.4665
+$$
+
+(Equivalently, $\text{var}(Y) = p(1-p) = 0.32 \times 0.68 = 0.2176$, which is the
+form used in the R code.)
+
+**(d)** Only cells with $x \neq 0$ and $y = 1$ contribute:
+$$
+\begin{aligned}
+E(XY) &= \sum_x \sum_y x\,y\,P(X = x,\, Y = y) \\
+&= (1)(1)(0.10) + (2)(1)(0.06) + (3)(1)(0.02) \\
+&= 0.10 + 0.12 + 0.06 = 0.28
+\end{aligned}
+$$
+
+**(e)**
+$$
+\text{cov}(X,Y) = E(XY) - \mu_X\mu_Y = 0.28 - (1.36)(0.32) = 0.28 - 0.4352 = -0.1552
+$$
+$$
+\rho_{XY} = \frac{\text{cov}(X,Y)}{\sigma_X\,\sigma_Y}
+= \frac{-0.1552}{(0.9952)(0.4665)}
+= \frac{-0.1552}{0.4642} \approx -0.3343
+$$
+
+**(f)** The **negative** sign means that applicants in tracts with more bank
+branches tend to be denied less often: as $X$ goes up, $Y$ tends to go down.
+This number does **not** establish causation. Opening a branch would not
+necessarily lower denial rates. Tracts with more branches may differ in income,
+credit histories, wealth, or racial composition, and those differences could
+drive both branch location and denial. Correlation also captures only the
+*linear* part of the relationship.
+
+> **Grading (12 pts):** (a) 2 · (b) 2 · (c) 2 · (d) 2 · (e) 3 · (f) 1.
+>
+> - (a) The most common error is dividing by $P(Y=1)$ instead of $P(X=x)$
+>   (e.g., $0.14/0.32 = 0.4375$). That is $P(X=0 \mid Y=1)$, a different
+>   question. Deduct 1 per part.
+> - (b) Full credit requires comparing *both* numbers to 0.32 and drawing a
+>   conclusion (dependence). "Independence" is not required vocabulary.
+> - (e) Accept $\rho$ between $-0.3342$ and $-0.3345$ (rounding of
+>   $\sigma_X$, $\sigma_Y$). Carry errors forward from (b)–(d).
+> - (f) Half for the sign interpretation, half for "not causal" (or "linear
+>   only") with a reason. "Correlation isn't causation" without a reason or
+>   example earns half of that half.
+>
+> *Discussion point for Tuesday:* this table is a stylized version of the
+> branch-desert / credit-access pattern, a natural bridge to omitted-variable
+> bias later in the course.
+
+# Do it all in R
+
+**(8 points)**
+
+```{r q1}
+# Question 1
+x <- c(3, 5, 2, 6)
+
+n <- length(x)
+xbar <- sum(x) / n
+
+sum(x) # 1(a)
+xbar # 1(a)  the mean
+sum(3 * x) # 1(b)
+sum(x^2) # 1(c)  square first, then add
+sum(x)^2 # 1(d)  add first, then square
+sum(x - xbar) # 1(e)
+```
+
+```{r joint}
+# Question 2 — the joint distribution as a matrix.
+# Rows are X = 0,1,2,3.  Columns are Y = 0,1.
+J <- matrix(
+  c(0.10, 0.14, 0.20, 0.10, 0.26, 0.06, 0.12, 0.02),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(X = 0:3, Y = 0:1)
+)
+
+xvals <- 0:3
+yvals <- 0:1
+
+sum(J) # must be 1
+
+px <- rowSums(J) # the margins of X
+py <- colSums(J) # the margins of Y
+
+px
+sum(px)
+py
+sum(py)
+```
+
+
+```{r}
+# Question 2 — the joint distribution as a matrix.
+# Rows are X = 0,1,2,3.  Columns are Y = 0,1.
+J <- matrix(
+  c(0.10, 0.14, 0.20, 0.10, 0.26, 0.06, 0.12, 0.02),
+  nrow = 4,
+  byrow = TRUE,
+  dimnames = list(X = 0:3, Y = 0:1)
+)
+
+xvals <- 0:3
+yvals <- 0:1
+
+sum(J) # must be 1
+```
+```{r moments}
+# Question 2(b)-(e)
+EX <- sum(xvals * px) # E(X)
+EX2 <- sum(xvals^2 * px) # E(X^2)
+
+varX <- EX2 - EX^2
+sdX <- sqrt(varX)
+
+EY <- sum(yvals * py)
+
+round(c(EX = EX, EX2 = EX2, varX = varX, sdX = sdX, EY = EY), 4)
+```
+
+```{r two-variables}
+# Question 3
+J["0", "1"] / px["0"] # 3(a)  P(Y = 1 | X = 0)
+J["3", "1"] / px["3"] #       P(Y = 1 | X = 3)
+
+varY <- EY * (1 - EY) # 3(c)
+sdY <- sqrt(varY)
+
+EXY <- sum(outer(xvals, yvals) * J) # 3(d)  outer() builds the table of x*y
+
+covXY <- EXY - EX * EY # 3(e)
+rho <- covXY / (sdX * sdY)
+
+round(c(varY = varY, sdY = sdY, EXY = EXY, cov = covXY, rho = rho), 4)
+```
+
+**Instructor extra (not required of the student):** the full conditional denial
+rate at every value of $X$ shows the monotone pattern behind the negative
+correlation. A built-in cross-check confirms $\rho$.
+
+```{r extra}
+round(J[, "1"] / px, 4) # P(Y = 1 | X = x) for x = 0, 1, 2, 3
+
+# Cross-check rho by simulating 1,000,000 draws from the joint distribution
+set.seed(300)
+cells <- expand.grid(X = xvals, Y = yvals)
+draws <- cells[sample(nrow(cells), 1e6, replace = TRUE, prob = as.vector(J)), ]
+round(cor(draws$X, draws$Y), 3)
+```
+
+**Hand vs. R comparison (model answer).** Every hand answer matches R to four
+decimal places: $\sum x_i = 16$, $\bar x = 4$, $E(X) = 1.36$,
+$\text{var}(X) = 0.9904$, $E(Y) = 0.32$, $E(XY) = 0.28$,
+$\text{cov}(X,Y) = -0.1552$, and $\rho = -0.3343$. The only place rounding
+could matter is $\rho$. Rounding $\sigma_X$ and $\sigma_Y$ to four places
+before dividing can move the fourth decimal. Carrying full precision, as R does,
+gives $-0.3343$.
+
+> **Grading (8 pts):** `joint` 2 · `moments` 2 · `two-variables` 3 ·
+> comparison paragraph 1. Each chunk earns credit only if `eval: false` is
+> removed and it runs. Common errors:
+>
+> - `xvals * px` used for $E(X^2)$ (forgot to square). -1.
+> - `J["3", "1"] / py["1"]` (wrong denominator, the same error as in 3(a)).
+>   -1.
+> - `varX <- EX2 - EX` (forgot to square the mean). -1.
+>
+> The comparison paragraph must name a disagreement if one exists. "They all
+> matched" earns the point only if they actually did.
+
+# Answer summary {.unnumbered}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Quantity & Answer \\
+\midrule
+$\sum x_i$, $\bar x$ & 16, \; 4 \\
+$\sum 3x_i$ & 48 \\
+$\sum x_i^2$ vs.\ $(\sum x_i)^2$ & 74 vs.\ 256 \\
+$\sum (x_i - \bar x)$ & 0 \\
+$P(X=x)$, $x = 0,1,2,3$ & 0.24, 0.30, 0.32, 0.14 \\
+$P(Y=y)$, $y = 0,1$ & 0.68, 0.32 \\
+$E(X)$, $E(X^2)$ & 1.36, \; 2.84 \\
+$\text{var}(X)$, $\sigma_X$ & 0.9904, \; 0.9952 \\
+$E(Y)$ & 0.32 \\
+$P(Y=1 \mid X=0)$, $P(Y=1 \mid X=3)$ & 0.5833, \; 0.1429 \\
+$\text{var}(Y)$, $\sigma_Y$ & 0.2176, \; 0.4665 \\
+$E(XY)$ & 0.28 \\
+$\text{cov}(X,Y)$, $\rho_{XY}$ & $-0.1552$, \; $-0.3343$ \\
+\bottomrule
+\end{tabular}
+\end{center}

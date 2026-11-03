@@ -1,0 +1,991 @@
+---
+title: "Day 6 — Regression II: Is the Coefficient Real? t-tests, p-values, and the F-test"
+subtitle: "ECON 300 · Applied Statistics for Economists"
+author: "Ari Kamau"
+date: "2026-11-10"
+format:
+  revealjs:
+    theme: default
+    slide-number: c/t
+    chalkboard: true
+    preview-links: auto
+    code-line-numbers: false
+    incremental: false
+    smaller: true
+    scrollable: true
+    width: 1280
+    height: 720
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+
+# The JPMorgan card-segment data used all morning (simulated).
+set.seed(1122)
+n <- 120
+unemp <- round(runif(n, 3, 9), 1)
+util <- round(rnorm(n, 30, 8), 1)
+tenure <- round(pmax(rnorm(n, 6, 2), 0.5), 1)
+rewards <- round(runif(n, 20, 80))
+nco <- round(
+  0.8 +
+    0.30 * unemp +
+    0.04 * util -
+    0.07 * tenure +
+    0 * rewards +
+    rnorm(n, 0, 0.8),
+  2
+)
+segs <- tibble(nco, unemp, util, tenure, rewards)
+reg <- lm(nco ~ unemp + util + tenure + rewards, data = segs)
+
+# helper: draw a t density with shaded rejection regions
+t_plot <- function(df, lo = NULL, hi = NULL, t_obs = NULL) {
+  d <- tibble(x = seq(-4.5, 4.5, length.out = 600), y = dt(x, df))
+  p <- ggplot(d, aes(x, y)) +
+    geom_line(linewidth = 1)
+  if (!is.null(lo)) {
+    p <- p +
+      geom_area(data = filter(d, x <= lo), fill = "#E74C3C", alpha = 0.5)
+  }
+  if (!is.null(hi)) {
+    p <- p +
+      geom_area(data = filter(d, x >= hi), fill = "#E74C3C", alpha = 0.5)
+  }
+  if (!is.null(t_obs)) {
+    p <- p + geom_vline(xintercept = t_obs, linetype = "dashed", linewidth = 1)
+  }
+  p + labs(x = "t", y = NULL) + theme_minimal(base_size = 15)
+}
+```
+
+::: {.notes}
+MASTER DECK. Every "You Try" slide is followed immediately by its solution
+slide. Present straight through; advance one slide to reveal the answer.
+
+Press S for speaker notes, B for the chalkboard, ESC for the overview.
+
+TIMING
+0-10   News article
+10-20  Recap, the JPMorgan setting, multiple regression (slides 2-6)
+20-40  The t-test: two-sided, You Try 1, one-sided (slides 7-11)
+40-60  You Try 2, confidence intervals, the F-test, You Try 3 (slides 12-18)
+60-65  Break
+65-75  The whole table, mapped (slides 19-21)
+75-90  You Try 4: t and p by hand in R (slides 22-24)
+90-105 You Try 5: the F-test two ways (slides 25-26)
+105-120 You Try 6: rebuild the bottom block, wrap (slides 27-29)
+
+IF YOU FALL BEHIND: drop the nonzero-null part (d) of You Try 2 and You Try 6.
+Do NOT cut the one-sided test or the F-test. They are on the homework and
+on her learning goals.
+
+SOURCE: Stock & Watson, Introduction to Econometrics, §5.1-5.2 (two- and
+one-sided tests, confidence intervals), §5.4 (homoskedasticity), §6.2-6.4
+(multiple regression, adjusted R^2), §7.1-7.2 (tests on one coefficient and
+joint tests; the homoskedasticity-only F-statistic).
+
+All data in this deck is simulated. The truth is: unemp 0.30, util 0.04,
+tenure -0.07, rewards 0. Keep that in your pocket; you reveal it at the end
+of You Try 5.
+:::
+
+## This morning
+
+**Hour 1 · Theory**
+
+- Multiple regression: more than one $X$, "holding the others fixed"
+- The $t$-test on one coefficient, **two-sided** and **one-sided**
+- $p$-values and confidence intervals
+- The $F$-test: testing several coefficients **at once**
+
+**Hour 2 · Code**
+
+- Computing $t$ and $p$ by hand in R, and matching `summary()`
+- The $F$-test two ways: from sums of squares, and with `anova()`
+- Rebuilding every number in the bottom of the table
+
+**Reading:** Stock & Watson §5.1–5.2, §6.2–6.4, §7.1–7.2 ·
+**Due Wed 11/11, 11:59 PM:** Classwork 3-1
+
+::: {.notes}
+One sentence frame: Thursday we learned to fit a line and measure how much
+the slope bounces. Today we use that bounce to decide whether a slope is
+real or luck.
+
+By the end of the morning every number in summary(lm()) and anova() has a
+formula she has computed. Say that as the goal.
+:::
+
+## Where we left off
+
+Thursday's portfolio:
+
+```{r}
+#| label: thursday
+#| echo: false
+set.seed(1105)
+fico <- round(pmin(pmax(rnorm(500, 690, 50), 560), 830))
+cap1 <- tibble(
+  fico,
+  util = round(pmin(pmax(160 - 0.15 * fico + rnorm(500, 0, 12), 0), 100), 1)
+)
+round(coef(summary(lm(util ~ fico, data = cap1))), 4)
+```
+
+. . .
+
+The estimate is $-0.139$. Its standard error is $0.011$. So the estimate sits
+about **12.7 standard errors** below zero.
+
+. . .
+
+> **Today's question:** how many standard errors away from zero is "far enough"
+> to rule out luck? And what if we want to test several coefficients at once?
+
+::: {.notes}
+Ask her to divide -0.139 by 0.011 on the spot. She will get about -12.7.
+Then point at the t value column: -12.68. "You just computed a t-statistic.
+The rest of the morning is about what to do with it."
+:::
+
+## The job: JPMorgan Chase, Consumer Card Risk
+
+You are on a **card loss forecasting** team. Banks forecast losses for
+reserves and for regulatory stress tests, so the team needs to know which
+portfolio features move charge-offs.
+
+| Variable | Meaning | Units |
+|---|---|---|
+| `nco` | **net charge-off rate**: share of balances written off as lost | % per year |
+| `unemp` | local unemployment rate | % |
+| `util` | average credit utilization | % |
+| `tenure` | average account age | years |
+| `rewards` | share of accounts that are rewards cards | % |
+
+One row = one **portfolio segment** (a region × product group). $n = 120$.
+
+::: {.callout-warning appearance="minimal"}
+Simulated data. The setting is realistic; the numbers are invented.
+:::
+
+::: {.notes}
+Thirty seconds of context, no more. A charge-off is a loan the bank gives up
+on and writes off as a loss. Unemployment is the classic macro driver in loss
+models, which is why stress-test scenarios are written in terms of the
+unemployment rate.
+
+Ask her to predict a sign for each variable before we fit anything. Write
+her guesses on the board. Those guesses become the one-sided hypotheses on
+slide 11. Unemp: plus. Util: plus. Tenure: minus (seasoned accounts have
+already survived the risky early years). Rewards: no idea.
+:::
+
+## Multiple regression
+
+$$
+\text{nco}_i = \beta_0 + \beta_1\,\text{unemp}_i + \beta_2\,\text{util}_i
++ \beta_3\,\text{tenure}_i + \beta_4\,\text{rewards}_i + u_i
+$$
+
+::: {.columns}
+::: {.column width="50%"}
+**Same OLS idea**: pick the $\hat\beta$'s that minimize $\sum \hat u_i^2$.
+Same sums of squares: $TSS = ESS + SSR$.
+
+**New meaning**: $\beta_1$ is the change in nco for a one-point rise in
+unemployment, **holding util, tenure, and rewards fixed** (S&W §6.2).
+:::
+::: {.column width="46%"}
+**Degrees of freedom**: with $k$ regressors we estimate $k + 1$ coefficients,
+so
+
+$$
+df = n - k - 1 = 120 - 4 - 1 = 115
+$$
+
+**Adjusted $R^2$** charges for each regressor:
+
+$$
+\bar R^2 = 1 - \frac{SSR/(n-k-1)}{TSS/(n-1)}
+$$
+:::
+:::
+
+::: {.notes}
+Stock & Watson §6.2-6.4. Three things carry over from Thursday unchanged:
+OLS minimizes squared misses, TSS = ESS + SSR, R^2 = ESS/TSS. Two things are
+new: "holding fixed" and k.
+
+On Thursday n - 2 was really n - k - 1 with k = 1. Point that out; it is the
+same rule.
+
+Adjusted R^2: R^2 can only go up when you add a regressor, even a useless
+one. Adjusted R^2 can go down. That is all she needs.
+:::
+
+## The fitted model
+
+```{r}
+#| label: full-summary
+summary(reg)
+```
+
+::: {.notes}
+Do not explain anything yet. Let her look at it for twenty seconds. Ask:
+"Which numbers can you already explain from Thursday?" She should find
+Estimate, Std. Error, Residual standard error, Multiple R-squared, and the
+degrees of freedom.
+
+Everything else (t value, Pr(>|t|), the stars, the F-statistic) is today.
+:::
+
+## The $t$-test, in four steps
+
+To test whether one coefficient equals some value $\beta_{j,0}$ (usually 0):
+
+1. **State the hypotheses** *before* looking at the estimate:
+   $H_0: \beta_j = \beta_{j,0}$ against $H_1$.
+2. **Compute the $t$-statistic**: how many standard errors the estimate is from the null value
+   $$
+   t = \frac{\hat\beta_j - \beta_{j,0}}{SE(\hat\beta_j)}
+   $$
+3. **Find the $p$-value**: if $H_0$ were true, how likely is a $t$ at least this extreme?
+4. **Decide**: reject $H_0$ if $p < \alpha$ (usually $\alpha = 0.05$), or
+   equivalently if $t$ is beyond the critical value.
+
+. . .
+
+When $\beta_{j,0} = 0$, the $t$-statistic is just
+$\hat\beta_j / SE(\hat\beta_j)$. That is R's `t value` column.
+
+::: {.notes}
+Stock & Watson §5.1 and §7.1. This is the same recipe as Day 9 (10/8) with a
+mean; now the estimate is a slope. Say that, because she already did this.
+
+Why t and not the normal: we estimated the SE, which adds a little extra
+uncertainty. The t with n-k-1 degrees of freedom accounts for it (S&W §5.6).
+With 115 df the t is very close to the normal, so 1.98 is close to 1.96.
+
+The p-value definition is where people go wrong. It is NOT the probability
+that H0 is true. It is the probability of data this extreme IF H0 were true.
+Make her say it back.
+:::
+
+## Two-sided test: "is $\beta_j$ different from zero?"
+
+$H_0: \beta_j = 0 \quad$ vs. $\quad H_1: \beta_j \neq 0 \qquad$ An estimate
+far out in **either** direction is evidence against $H_0$.
+
+```{r}
+#| label: two-sided-plot
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.2
+#| fig-align: center
+t_plot(115, lo = qt(0.025, 115), hi = qt(0.975, 115)) +
+  annotate("text", x = -3.3, y = 0.08, label = "2.5%", size = 6) +
+  annotate("text", x = 3.3, y = 0.08, label = "2.5%", size = 6)
+```
+
+$$
+p = 2 \times P\big(T > |t|\big) \qquad \text{Reject at 5\% if } |t| > t_{0.975,\,df} = 1.98 \text{ (for 115 df)}
+$$
+
+In R: `2 * pt(-abs(t), df)` gives the $p$-value; `qt(0.975, df)` gives the
+critical value.
+
+::: {.notes}
+The red area is the 5% we are willing to be wrong in, split in half because
+we are watching both directions.
+
+R's Pr(>|t|) column is ALWAYS this two-sided p-value. That fact matters for
+the next slide.
+:::
+
+## You Try 1 — Two-sided tests by hand
+
+From the table: `util` has estimate $0.037788$, SE $0.010551$.
+`tenure` has estimate $-0.071478$, SE $0.042057$. $\;df = 115$,
+$\;t_{0.975,\,115} = 1.98$.
+
+**(a)** Test $H_0: \beta_{\text{util}} = 0$ against $H_1: \beta_{\text{util}} \neq 0$
+at the 5% level. Compute $t$ and decide.
+
+**(b)** Do the same for `tenure`.
+
+**(c)** R reports $p = 0.092$ for `tenure`. Write one sentence that says what
+this number means, without the words "probability that $H_0$ is true."
+
+::: {.notes}
+Five minutes.
+
+(c) is the important one. A good answer: "If average account age truly had
+no effect on charge-offs, we would see an estimate at least this far from
+zero, in either direction, about 9% of the time."
+:::
+
+## Solution 1
+
+**(a)** $t = 0.037788 / 0.010551 = 3.58$. $\;|3.58| > 1.98$ →
+**reject** $H_0$. Utilization is significantly related to charge-offs at
+5%. ($p = 0.0005$)
+
+**(b)** $t = -0.071478 / 0.042057 = -1.70$. $\;|-1.70| < 1.98$ →
+**fail to reject** $H_0$ at 5%. ($p = 0.092$)
+
+**(c)** If tenure truly had **no** effect, an estimate at least 1.70 standard
+errors from zero, in either direction, would happen about **9.2%** of the time.
+
+. . .
+
+::: {.callout-important appearance="minimal"}
+"Fail to reject" is **not** "accept." We have not shown $\beta_{\text{tenure}} = 0$;
+we have shown the data are not strong enough to rule it out.
+:::
+
+::: {.notes}
+Hold on tenure. She predicted a negative sign. The estimate IS negative. The
+two-sided test still says "not significant." Ask her: is that fair, given
+that we only ever expected one direction? That question is the next slide.
+:::
+
+## One-sided test: "is $\beta_j$ *negative*?"
+
+If theory says the sign **before** you see the data (seasoned accounts default
+less), test only that direction:
+
+$H_0: \beta_{\text{tenure}} = 0 \quad$ vs. $\quad H_1: \beta_{\text{tenure}} < 0$
+
+```{r}
+#| label: one-sided-plot
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3
+#| fig-align: center
+t_plot(115, lo = qt(0.05, 115), t_obs = -1.70) +
+  annotate("text", x = -3.3, y = 0.08, label = "5%", size = 6) +
+  annotate("text", x = -1.25, y = 0.36, label = "t = -1.70", size = 5)
+```
+
+| $H_1$ | $p$-value | Reject at 5% if | R |
+|---|---|---|---|
+| $\beta_j < 0$ (left tail) | $P(T < t)$ | $t < -1.66$ | `pt(t, df)` |
+| $\beta_j > 0$ (right tail) | $P(T > t)$ | $t > 1.66$ | `pt(t, df, lower.tail = FALSE)` |
+
+::: {.notes}
+Stock & Watson §5.1, one-sided hypotheses. All 5% now sits in ONE tail, so
+the cutoff moves in from 1.98 to 1.66.
+
+Two rules to say out loud:
+1. The direction comes from theory, chosen BEFORE seeing the estimate.
+   Choosing the tail after seeing the sign is cheating; it doubles your real
+   error rate.
+2. When the estimate has the predicted sign, the one-sided p is half of R's
+   two-sided p. When it has the WRONG sign, the one-sided p is 1 minus half,
+   which is huge. R never prints the one-sided p; you compute it.
+:::
+
+## You Try 2 — One-sided tests
+
+$df = 115$, $\;t_{0.95,\,115} = 1.66$.
+
+**(a)** Test $H_1: \beta_{\text{tenure}} < 0$ at 5%. Use $t = -1.70$ from
+You Try 1. What is the $p$-value? (Hint: R's two-sided $p$ was 0.092.)
+Compare your decision with You Try 1(b).
+
+**(b)** `unemp` has $t = 7.01$. Test $H_1: \beta_{\text{unemp}} > 0$.
+
+**(c)** `rewards` has estimate $+0.0033$, two-sided $p = 0.485$. Someone
+claims rewards cards *lower* losses: $H_1: \beta_{\text{rewards}} < 0$.
+What is the one-sided $p$?
+
+**(d)** The team's old model assumed $\beta_{\text{unemp}} = 0.25$. Test
+$H_0: \beta_{\text{unemp}} = 0.25$ vs. $H_1: \beta_{\text{unemp}} \neq 0.25$
+(estimate $0.334698$, SE $0.047718$).
+
+::: {.notes}
+Eight minutes.
+
+(c) is the trap. The estimate points the wrong way. The one-sided p is not
+0.24; it is 1 - 0.485/2 = 0.76. Data pointing the other way cannot be
+evidence for your direction.
+
+(d) is the first time the null is not zero. Same formula, just subtract
+0.25 in the numerator. This matters in practice: you often test against an
+old model's number, not against zero.
+:::
+
+## Solution 2
+
+**(a)** Estimate has the predicted sign, so $p = 0.092/2 = 0.046$. Also
+$t = -1.70 < -1.66$. **Reject** at 5%. The two-sided test did not reject;
+the one-sided test does, because all 5% sits in the tail theory pointed to.
+
+**(b)** $t = 7.01 > 1.66$ → reject. $p = P(T > 7.01) \approx 8 \times 10^{-11}$.
+Higher unemployment goes with higher charge-offs.
+
+**(c)** The estimate points the **wrong way**, so $p = 1 - 0.485/2 = 0.757$.
+No evidence at all for $H_1$.
+
+**(d)** $t = (0.334698 - 0.25)/0.047718 = 1.77$. $\;|1.77| < 1.98$ →
+fail to reject. The data are consistent with the old model's 0.25.
+
+::: {.notes}
+(a) is the headline. Same data, same estimate, different conclusion, because
+the question was different. That is why the hypothesis is written down before
+the regression is run.
+
+(d) Also notice: unemp is significantly different from 0 AND not
+significantly different from 0.25. Both are true at once. A test answers the
+question you asked.
+:::
+
+## Confidence intervals
+
+A 95% confidence interval for $\beta_j$ (S&W §5.2):
+
+$$
+\hat\beta_j \;\pm\; t_{0.975,\,df} \times SE(\hat\beta_j)
+$$
+
+`tenure`: $\;-0.0715 \pm 1.98 \times 0.0421 = (-0.155,\; 0.012)$
+
+. . .
+
+::: {.columns}
+::: {.column width="48%"}
+**The link to testing:** 0 is inside the interval ⇔ the two-sided test at 5%
+does **not** reject $\beta_j = 0$.
+
+The interval is every null value the data cannot reject.
+:::
+::: {.column width="48%"}
+**Interpretation:** across repeated samples, 95% of intervals built this way
+contain the true $\beta_j$.
+
+It is *not* "a 95% chance the true value is in this particular interval."
+:::
+:::
+
+`confint(reg)` prints them all.
+
+::: {.notes}
+The interval for tenure barely includes 0, matching the two-sided p of 0.09.
+The interval for unemp, (0.24, 0.43), includes 0.25. That is You Try 2(d)
+again, read off an interval instead of a t-stat.
+
+Bayesian contrast, since she just did Bayes: the "95% chance it's in here"
+reading is what a Bayesian credible interval says. A frequentist interval
+does not say it. One sentence; do not reopen Block IV.
+:::
+
+## Testing several coefficients at once
+
+The team asks: *do the two portfolio-mix variables, `tenure` and `rewards`,
+matter at all, once we know unemployment and utilization?*
+
+$$
+H_0: \beta_{\text{tenure}} = 0 \text{ and } \beta_{\text{rewards}} = 0
+\qquad H_1: \text{at least one is not } 0
+$$
+
+. . .
+
+**Why not two $t$-tests?** Each has a 5% false-alarm rate. Running two of
+them, the chance that *at least one* false-alarms is close to 10%, not 5%
+(S&W §7.2). We need **one** test for the joint claim.
+
+. . .
+
+The **$F$-statistic** compares two models' sums of squared residuals:
+
+$$
+F = \frac{(SSR_{\text{restricted}} - SSR_{\text{unrestricted}})\,/\,q}{SSR_{\text{unrestricted}}\,/\,(n - k - 1)}
+$$
+
+- **Unrestricted**: the full model, all 4 regressors
+- **Restricted**: the model with $H_0$ imposed (drop `tenure` and `rewards`)
+- $q$ = number of restrictions (here 2); $\;k$ and $n - k - 1$ from the unrestricted model
+
+::: {.notes}
+Stock & Watson §7.2, the homoskedasticity-only F-statistic. The textbook
+also gives a robust version; R's anova() computes this one.
+
+Intuition, in one breath: dropping variables always makes the fit worse
+(SSR goes up). The question is whether it gets worse by MORE than you would
+expect if those variables were useless. The numerator is "how much worse,
+per restriction." The denominator is "how much noise there is, per degree of
+freedom." Big ratio = the dropped variables were doing real work.
+
+Under H0, F follows an F distribution with q and n-k-1 degrees of freedom.
+She met the F on Day 4. This is where it lives.
+:::
+
+## The $F$ at the bottom of every table
+
+`summary()` always reports one particular $F$-test: **are all the slopes zero?**
+
+$$
+H_0: \beta_1 = \beta_2 = \cdots = \beta_k = 0
+$$
+
+The restricted model is just an intercept, which predicts $\bar Y$ for
+everyone, so $SSR_{\text{restricted}} = TSS$. Then
+$TSS - SSR = ESS$ and the formula becomes
+
+$$
+F = \frac{ESS / k}{SSR / (n - k - 1)}
+$$
+
+. . .
+
+- `F-statistic: 16.6 on 4 and 115 DF` → $q = k = 4$, denominator df $= 115$
+- **With one regressor, $F = t^2$.** Thursday's portfolio: $(-12.68)^2 = 160.8$,
+  the F in its table.
+
+::: {.notes}
+This is the "overall F" or "regression F." It is rarely the interesting test
+(of course SOMETHING matters), but she needs to be able to rebuild it. The
+homework asks for it.
+
+F = t^2 with one regressor: you are testing one restriction, so the joint
+test and the single test are the same test. The homework asks her to verify
+this numerically.
+:::
+
+## You Try 3 — The $F$-test by hand
+
+$n = 120$, $\;k = 4$.
+
+| Model | Regressors | SSR |
+|---|---|---|
+| Unrestricted | unemp, util, tenure, rewards | 93.361 |
+| Restricted | unemp, util | 96.284 |
+
+**(a)** Compute $F$ for $H_0: \beta_{\text{tenure}} = \beta_{\text{rewards}} = 0$.
+What are $q$ and the denominator df?
+
+**(b)** The 5% critical value is $F_{0.95}(2, 115) = 3.07$. Decide.
+
+**(c)** The full model's $ESS = 53.899$. Compute the overall $F$ and check it
+against the table.
+
+::: {.notes}
+Seven minutes.
+
+(b) The joint test fails to reject. Yet the one-sided test on tenure
+rejected. Not a contradiction: the joint test is two-sided in spirit and
+spreads its attention over two variables, one of which (rewards) is pure
+noise. Rewards dilutes tenure's signal. Say this; it is a real lesson about
+bundling a weak variable with a dead one.
+:::
+
+## Solution 3
+
+**(a)** $q = 2$, denominator df $= 120 - 4 - 1 = 115$.
+
+$$
+F = \frac{(96.284 - 93.361)/2}{93.361/115} = \frac{1.4615}{0.8118} = 1.80
+$$
+
+**(b)** $1.80 < 3.07$ → **fail to reject**. Together, tenure and rewards do
+not significantly improve the model. ($p = 0.170$)
+
+**(c)**
+$$
+F = \frac{53.899/4}{93.361/115} = \frac{13.475}{0.8118} = 16.6
+$$
+which matches `F-statistic: 16.6 on 4 and 115 DF`.
+
+::: {.notes}
+Everything on this slide is the homework's Question 3, with different
+numbers. If she can do this slide she can do the homework.
+
+Break here.
+:::
+
+# Hour 2 · Code
+
+## Every number in `summary()`, mapped
+
+::: {style="font-size: 80%;"}
+| Line in R | Symbol | Formula |
+|---|---|---|
+| `Estimate` | $\hat\beta_j$ | OLS ($S_{xy}/S_{xx}$ with one $X$) |
+| `Std. Error` | $SE(\hat\beta_j)$ | $SER/\sqrt{S_{xx}}$ with one $X$ |
+| `t value` | $t$ | $\hat\beta_j / SE(\hat\beta_j)$ |
+| Pr(>&#124;t&#124;) | two-sided $p$ | `2 * pt(-abs(t), n - k - 1)` |
+| stars | | \*\*\* below 0.001 · \*\* below 0.01 · \* below 0.05 · . below 0.1 |
+| `Residual standard error: … on 115 degrees of freedom` | $SER$, $\;n-k-1$ | $\sqrt{SSR/(n-k-1)}$ |
+| `Multiple R-squared` | $R^2$ | $ESS/TSS$ |
+| `Adjusted R-squared` | $\bar R^2$ | $1 - \dfrac{SSR/(n-k-1)}{TSS/(n-1)}$ |
+| `F-statistic: … on 4 and 115 DF` | overall $F$ | $\dfrac{ESS/k}{SSR/(n-k-1)}$ |
+| `p-value` (last line) | $p$ for $F$ | `pf(F, k, n - k - 1, lower.tail = FALSE)` |
+:::
+
+::: {.notes}
+This is the homework's reference card. Tell her to screenshot it.
+
+The stars are a convenience, not a finding. A coefficient with p = 0.051
+and one with p = 0.049 are essentially the same evidence; one gets a star,
+one does not.
+:::
+
+## Every number in `anova()`, mapped
+
+```{r}
+#| label: anova-full
+anova(reg)
+```
+
+- Each regressor row's `Sum Sq` is what that variable **adds**, given the rows
+  above it. The rows **add up to ESS**.
+- `Residuals` row: `Sum Sq` $= SSR$; `Df` $= n-k-1$; `Mean Sq` $= SSR/(n-k-1) = SER^2$.
+- $TSS$ is not printed: add the whole `Sum Sq` column.
+- `Mean Sq` $=$ `Sum Sq` / `Df`. `F value` $=$ row `Mean Sq` / Residuals `Mean Sq`.
+
+::: {.notes}
+Order matters for the individual rows (they are "sequential" sums of
+squares) but not for their total. If she reorders the regressors, the rows
+change and the sum does not. You can demonstrate in ten seconds by refitting
+with rewards first. Do not go deeper; the homework has one regressor, where
+this subtlety disappears.
+:::
+
+## What the table will not tell you
+
+::: {.columns}
+::: {.column width="48%"}
+**Standard errors assume constant spread.** R's default SEs are
+*homoskedasticity-only*: they assume the spread of $u$ is the same at every
+$X$. Stock & Watson recommend **robust** SEs that drop that assumption
+(§5.4). Same estimates, slightly different SEs. You will meet them in
+upper-level econometrics.
+:::
+::: {.column width="48%"}
+**Significant ≠ causal.** A small $p$ says the association is unlikely to be
+luck. It says nothing about *why*. Unemployment and charge-offs could both be
+driven by a third thing. R prints `***` either way.
+
+**Significant ≠ important.** With enough data, a tiny effect gets a tiny $p$.
+Always read the **size** of the estimate.
+:::
+:::
+
+::: {.notes}
+Two minutes. These are guardrails, not new material. The causal point
+connects back to Thursday's FICO/utilization note: FICO is partly computed
+from utilization, so that slope cannot be read as a cause.
+:::
+
+## The segments, simulated
+
+```{r}
+#| label: sim-show
+#| eval: false
+set.seed(1122)
+n <- 120
+unemp <- round(runif(n, 3, 9), 1)
+util <- round(rnorm(n, 30, 8), 1)
+tenure <- round(pmax(rnorm(n, 6, 2), 0.5), 1)
+rewards <- round(runif(n, 20, 80))
+nco <- round(
+  0.8 +
+    0.30 * unemp +
+    0.04 * util -
+    0.07 * tenure +
+    0 * rewards +
+    rnorm(n, 0, 0.8),
+  2
+)
+segs <- tibble(nco, unemp, util, tenure, rewards)
+reg <- lm(nco ~ unemp + util + tenure + rewards, data = segs)
+```
+
+```{r}
+#| label: sim-peek
+head(segs, 3)
+```
+
+Look at the truth we wrote down. Do not tell the regression.
+
+::: {.notes}
+Point at the "0 * rewards". We built a variable with NO effect on purpose.
+The table gave it p = 0.49. That is the test working.
+
+And tenure: truly -0.07, but the two-sided test missed it. That is a Type II
+error, live. Worth naming: the test was not wrong, it was underpowered. 120
+segments was not enough to see an effect that small clearly.
+:::
+
+## You Try 4 — $t$ and $p$ by hand, in R
+
+```{r}
+#| label: you-try-4
+#| eval: false
+ct <- coef(summary(reg)) # the coefficient matrix
+df_resid <- reg$df.residual # n - k - 1
+
+b <- ct["tenure", "Estimate"]
+se <- ct["tenure", ____]
+
+t_stat <- ____ / ____
+p_two <- 2 * pt(-abs(____), df_resid)
+p_left <- pt(____, df_resid) # H1: beta < 0
+crit_two <- qt(____, df_resid)
+crit_one <- qt(____, df_resid)
+
+round(
+        c(
+                t = t_stat,
+                p_two = p_two,
+                p_left = p_left,
+                crit_two = crit_two,
+                crit_one = crit_one
+        ),
+        4
+)
+ct["tenure", ] # compare
+```
+
+Then: build the 95% CI for `tenure` from `b`, `se`, and `crit_two`, and
+compare it with `confint(reg)`.
+
+::: {.notes}
+Seven minutes. Every blank is a formula from Hour 1.
+:::
+
+## Solution 4
+
+```{r}
+#| label: you-try-4-soln
+ct <- coef(summary(reg))
+df_resid <- reg$df.residual
+
+b <- ct["tenure", "Estimate"]
+se <- ct["tenure", "Std. Error"]
+
+t_stat <- b / se
+p_two <- 2 * pt(-abs(t_stat), df_resid)
+p_left <- pt(t_stat, df_resid)
+crit_two <- qt(0.975, df_resid)
+crit_one <- qt(0.05, df_resid)
+
+round(
+        c(
+                t = t_stat,
+                p_two = p_two,
+                p_left = p_left,
+                crit_two = crit_two,
+                crit_one = crit_one
+        ),
+        4
+)
+round(
+        rbind(
+                by_hand = b + c(-1, 1) * crit_two * se,
+                confint = confint(reg)["tenure", ]
+        ),
+        4
+)
+```
+
+::: {.notes}
+crit_one is -1.66 because qt(0.05, ...) is the LEFT tail. She may have
+written qt(0.95, ...) and gotten +1.66; both are fine as long as she knows
+which tail she is in. Make her say which.
+:::
+
+## You Try 5 — The $F$-test, two ways
+
+```{r}
+#| label: you-try-5
+#| eval: false
+reg_r <- lm(nco ~ unemp + util, data = segs) # H0 imposed
+
+SSR_u <- sum(resid(reg)^2)
+SSR_r <- sum(resid(____)^2)
+q <- ____
+df_u <- reg$df.residual
+
+F_stat <- ((____ - ____) / q) / (____ / df_u)
+p_F <- pf(F_stat, q, df_u, lower.tail = FALSE)
+round(c(F = F_stat, p = p_F), 4)
+
+anova(reg_r, reg) # R's version: restricted first, then unrestricted
+```
+
+**Then:** is the result consistent with what we *know* the truth to be?
+
+::: {.notes}
+Seven minutes. anova() with TWO models does exactly the F-test from slide
+15. Have her find SSR_r and SSR_u in its output (column "RSS"; R's name for
+SSR).
+
+The truth question: rewards is truly 0, tenure is truly -0.07. So H0 is
+FALSE (tenure is not zero), yet we failed to reject. Another Type II error,
+caused by bundling tenure with a dead variable. Reveal the full truth now:
+0.30, 0.04, -0.07, 0. Put the estimates next to it.
+:::
+
+## Solution 5
+
+```{r}
+#| label: you-try-5-soln
+reg_r <- lm(nco ~ unemp + util, data = segs)
+SSR_u <- sum(resid(reg)^2)
+SSR_r <- sum(resid(reg_r)^2)
+q <- 2
+df_u <- reg$df.residual
+F_stat <- ((SSR_r - SSR_u) / q) / (SSR_u / df_u)
+round(
+        c(
+                SSR_r = SSR_r,
+                SSR_u = SSR_u,
+                F = F_stat,
+                p = pf(F_stat, q, df_u, lower.tail = FALSE)
+        ),
+        4
+)
+anova(reg_r, reg)
+```
+
+$H_0$ is actually **false** here (the true tenure effect is $-0.07$), but
+$F = 1.80$ does not reject. Bundling a real-but-small effect with a useless
+variable hid it. That is a **Type II error**.
+
+## You Try 6 — Rebuild the bottom block
+
+Use only `anova(reg)`. No `summary()`.
+
+```{r}
+#| label: you-try-6
+#| eval: false
+a <- anova(reg)
+SS <- a$`Sum Sq` # 4 regressor rows, then Residuals
+k <- 4
+n <- nrow(segs)
+
+ESS <- sum(SS[1:____])
+SSR <- SS[____]
+TSS <- ____ + ____
+
+R2 <- ____
+adjR2 <- 1 - (SSR / (n - k - 1)) / (TSS / (____))
+SER <- sqrt(____)
+F_all <- (ESS / k) / (SSR / (n - k - 1))
+p_all <- pf(F_all, ____, ____, lower.tail = FALSE)
+
+round(c(R2 = R2, adjR2 = adjR2, SER = SER, F = F_all), 4)
+p_all
+```
+
+::: {.notes}
+Eight minutes. This is the code half of the homework in miniature: the
+homework asks her to do this by hand for a 10-account dataset, then confirm
+in R.
+:::
+
+## Solution 6
+
+```{r}
+#| label: you-try-6-soln
+a <- anova(reg)
+SS <- a$`Sum Sq`
+k <- 4
+n <- nrow(segs)
+ESS <- sum(SS[1:4])
+SSR <- SS[5]
+TSS <- ESS + SSR
+R2 <- ESS / TSS
+adjR2 <- 1 - (SSR / (n - k - 1)) / (TSS / (n - 1))
+SER <- sqrt(SSR / (n - k - 1))
+F_all <- (ESS / k) / (SSR / (n - k - 1))
+round(
+        c(
+                TSS = TSS,
+                ESS = ESS,
+                SSR = SSR,
+                R2 = R2,
+                adjR2 = adjR2,
+                SER = SER,
+                F = F_all
+        ),
+        4
+)
+pf(F_all, k, n - k - 1, lower.tail = FALSE)
+```
+
+Every number matches the bottom of `summary(reg)`.
+
+## Regression on one page
+
+| Question | Tool | Statistic | Reject at 5% when |
+|---|---|---|---|
+| Is $\beta_j \neq 0$? | two-sided $t$ | $\hat\beta_j / SE$ | $\lvert t \rvert > 1.98$ ($df = 115$) |
+| Is $\beta_j > 0$ (or $< 0$)? | one-sided $t$ | same $t$ | $t > 1.66$ (or $t < -1.66$) |
+| Is $\beta_j \neq c$? | $t$ with a nonzero null | $(\hat\beta_j - c)/SE$ | $\lvert t \rvert > 1.98$ |
+| Range of plausible $\beta_j$ | 95% CI | $\hat\beta_j \pm 1.98\,SE$ | 0 outside the CI |
+| Do several $\beta$'s matter jointly? | $F$-test | $\dfrac{(SSR_r - SSR_u)/q}{SSR_u/(n-k-1)}$ | $F > F_{0.95}(q, n-k-1)$ |
+| Does anything matter? | overall $F$ | $\dfrac{ESS/k}{SSR/(n-k-1)}$ | p-value $< 0.05$ |
+
+::: {.callout-note appearance="minimal"}
+**Due Wed 11/11, 11:59 PM:** Classwork 3-1. **Thursday 11/12: you teach it.**
+Bring your rendered PDF. You will rebuild the regression table at the board
+from the sums, explaining each number as you go.
+:::
+
+::: {.notes}
+Thursday is the Teach step. Tell her exactly what will happen so she can
+prepare: she walks through Questions 2 and 3 at the board, starting from the
+deviation table and ending at the F-statistic, and you play the confused
+manager asking "but what does that number mean?"
+
+The critical values in this table are for 115 df. For the homework (8 df)
+they are larger: qt(0.975, 8) = 2.31. Remind her to compute her own.
+:::
+
+# Appendix: the same thing in Python {visibility="uncounted"}
+
+::: {.notes}
+NOT part of the count. Do not present.
+:::
+
+## $t$, $p$, and $F$ in Python {visibility="uncounted"}
+
+```python
+import numpy as np
+import statsmodels.formula.api as smf
+import statsmodels.api as sm
+from scipy import stats
+
+reg   = smf.ols("nco ~ unemp + util + tenure + rewards", data=segs).fit()
+reg_r = smf.ols("nco ~ unemp + util", data=segs).fit()
+
+print(reg.summary())               # the summary(lm()) equivalent
+sm.stats.anova_lm(reg)             # the anova() equivalent (sequential SS)
+
+# t and p by hand for tenure
+t = reg.params["tenure"] / reg.bse["tenure"]
+df = reg.df_resid
+p_two  = 2 * stats.t.sf(abs(t), df)
+p_left = stats.t.cdf(t, df)
+
+# the joint F-test, two ways
+F = ((reg_r.ssr - reg.ssr) / 2) / (reg.ssr / df)
+p_F = stats.f.sf(F, 2, df)
+reg.compare_f_test(reg_r)          # returns (F, p, q)
+```
+
+::: {.callout-warning appearance="minimal"}
+`reg.ssr` is the sum of squared **residuals**, matching Stock & Watson.
+`reg.ess` is the explained sum of squares.
+:::

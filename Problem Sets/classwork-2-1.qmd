@@ -63,10 +63,16 @@ rule does this illustrate?
 
 (e) $\displaystyle\sum_{i=1}^{4} (x_i - \bar{x})$
 
+
 ::: {.callout-note appearance="minimal"}
 Parts (c) and (d) are different numbers. Part (e) has a surprise in it — do not
 round, just compute.
 :::
+
+
+```{r}
+
+```
 
 (f) In one sentence: $\mu$ and $\bar{x}$ both mean "a mean." What is the
 difference between them?

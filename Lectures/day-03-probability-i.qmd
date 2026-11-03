@@ -27,6 +27,13 @@ library(tidyverse)
 set.seed(300)
 ```
 
+
+$$
+
+\hat{u^2}
+$$
+
+
 ::: {.notes}
 MASTER DECK. Every "You Try" slide is followed immediately by its solution
 slide. Present straight through; advance one slide to reveal the answer.

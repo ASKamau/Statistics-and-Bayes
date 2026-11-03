@@ -1,0 +1,330 @@
+---
+title: "Classwork 3-1: Rebuild a Regression Table — Answer Key"
+subtitle: "ECON 300 · Applied Statistics for Economists · Stock & Watson Ch. 4, 5, 7.2"
+author: "Instructor: Ari Kamau"
+date: today
+format:
+  pdf:
+    documentclass: article
+    papersize: letter
+    geometry:
+      - margin=1in
+    fontsize: 11pt
+    number-sections: true
+    colorlinks: true
+    include-in-header:
+      text: |
+        \usepackage{amsmath,amssymb,booktabs}
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+**Instructor copy — do not distribute.** 40 points total (Q1: 10 · Q2: 10 ·
+Q3: 10 · Q4: 10). Answers are rounded to four decimal places; intermediate
+values are carried at full precision.
+
+Grading principle from the assignment: a hand/R disagreement that the student
+reports and diagnoses earns full credit. A hand answer that was quietly
+deleted earns none. Grading notes are set off as block quotes.
+
+Data: $n = 10$, $x$ = `dti`, $y$ = `util`, $k = 1$, so $df = n - k - 1 = 8$.
+
+# The line
+
+**(a)**
+$$
+\bar x = \frac{12 + 18 + 20 + 25 + 30 + 32 + 38 + 40 + 45 + 50}{10} = \frac{310}{10} = 31
+\qquad
+\bar y = \frac{22 + 35 + 28 + 41 + 37 + 55 + 46 + 52 + 68 + 56}{10} = \frac{440}{10} = 44
+$$
+
+**(b)** With $d_x = x_i - \bar x$ and $d_y = y_i - \bar y$:
+
+| $i$ | $x_i$ | $y_i$ | $d_{x}$ | $d_{y}$ | $d_x^{\,2}$ | $d_x\,d_y$ | $d_y^{\,2}$ |
+|---|---|---|---|---|---|---|---|
+| 1 | 12 | 22 | −19 | −22 | 361 | 418 | 484 |
+| 2 | 18 | 35 | −13 | −9 | 169 | 117 | 81 |
+| 3 | 20 | 28 | −11 | −16 | 121 | 176 | 256 |
+| 4 | 25 | 41 | −6 | −3 | 36 | 18 | 9 |
+| 5 | 30 | 37 | −1 | −7 | 1 | 7 | 49 |
+| 6 | 32 | 55 | 1 | 11 | 1 | 11 | 121 |
+| 7 | 38 | 46 | 7 | 2 | 49 | 14 | 4 |
+| 8 | 40 | 52 | 9 | 8 | 81 | 72 | 64 |
+| 9 | 45 | 68 | 14 | 24 | 196 | 336 | 576 |
+| 10 | 50 | 56 | 19 | 12 | 361 | 228 | 144 |
+| **Sum** | 310 | 440 | 0 | 0 | $S_{xx} = 1376$ | $S_{xy} = 1397$ | $TSS = 1788$ |
+
+**(c)**
+$$
+\hat\beta_1 = \frac{S_{xy}}{S_{xx}} = \frac{1397}{1376} = 1.0153
+\qquad\qquad
+\hat\beta_0 = 44 - 1.015262 \times 31 = 44 - 31.4731 = 12.5269
+$$
+
+**(d)** Each additional percentage point of debt-to-income is associated with
+about **1.02 percentage points higher utilization**, on average.
+
+$\hat\beta_0$ literally predicts 12.5% utilization for a borrower with **zero**
+debt-to-income. That is suspicious: a borrower with no debt carries no card
+balance, so utilization should be near zero. More importantly, no account in
+the sample has DTI below 12, so DTI = 0 is an **extrapolation** outside the
+data. The intercept anchors the line's height; it is not a finding about
+debt-free borrowers.
+
+> **Grading (10 pts):** (a) 1 · (b) 4 · (c) 3 · (d) 2. In (b), the two
+> deviation columns must sum to zero; a student who notices this and uses it
+> as a check earns full credit even with one downstream arithmetic slip. In
+> (c), $\hat\beta_0$ computed from a rounded $\hat\beta_1 = 1.02$ gives 12.38;
+> take off 0.5 for the rounding, not the full point. In (d), the slope
+> sentence needs units and "associated with" / "on average" language (no
+> causal claim). The intercept answer needs *either* the extrapolation point
+> *or* the "zero debt means zero balance" point.
+
+# Where the variation goes
+
+**(a)** $\hat y_i = 12.5269 + 1.0153\,x_i$:
+
+| $i$ | $x_i$ | $y_i$ | $\hat y_i$ | $\hat u_i$ | $\hat u_i^{\,2}$ | $x_i \hat u_i$ |
+|---|---|---|---|---|---|---|
+| 1 | 12 | 22 | 24.7100 | −2.7100 | 7.3443 | −32.5203 |
+| 2 | 18 | 35 | 30.8016 | 4.1984 | 17.6266 | 75.5712 |
+| 3 | 20 | 28 | 32.8321 | −4.8321 | 23.3494 | −96.6424 |
+| 4 | 25 | 41 | 37.9084 | 3.0916 | 9.5578 | 77.2892 |
+| 5 | 30 | 37 | 42.9847 | −5.9847 | 35.8171 | −179.5422 |
+| 6 | 32 | 55 | 45.0153 | 9.9847 | 99.6950 | 319.5116 |
+| 7 | 38 | 46 | 51.1068 | −5.1068 | 26.0797 | −194.0596 |
+| 8 | 40 | 52 | 53.1374 | −1.1374 | 1.2936 | −45.4942 |
+| 9 | 45 | 68 | 58.2137 | 9.7863 | 95.7724 | 440.3852 |
+| 10 | 50 | 56 | 63.2900 | −7.2900 | 53.1437 | −364.4985 |
+| **Sum** | | | 440 | 0 | $SSR = 369.6795$ | 0 |
+
+Both sums are zero up to rounding. They must be: they are the two conditions
+OLS sets to zero when it picks $\hat\beta_0$ and $\hat\beta_1$. If the
+residuals averaged above zero, raising the line would help; if they were
+correlated with $x$, tilting it would help. At the best line neither is
+possible.
+
+**(b)**
+$$
+\begin{aligned}
+ESS &= TSS - SSR = 1788 - 369.6795 = 1418.3205 \\
+ESS &= \hat\beta_1^{\,2} S_{xx} = (1.015262)^2 \times 1376 = 1418.3205 \checkmark
+\end{aligned}
+$$
+
+**(c)**
+$$
+\begin{aligned}
+R^2 &= \frac{1418.3205}{1788} = 0.7932 \\
+\bar R^2 &= 1 - \frac{369.6795/8}{1788/9} = 1 - \frac{46.2099}{198.6667} = 0.7674 \\
+SER &= \sqrt{\frac{369.6795}{8}} = \sqrt{46.2099} = 6.7978
+\end{aligned}
+$$
+
+DTI accounts for about **79%** of the variation in utilization across these
+ten accounts. The line typically misses an account's utilization by about
+**6.8 percentage points**.
+
+**(d)**
+
+```
+Analysis of Variance Table
+
+Response: util
+          Df  Sum Sq Mean Sq F value    Pr(>F)
+dti        1 1418.32 1418.32  30.693 0.0005473 ***
+Residuals  8  369.68   46.21
+```
+
+> **Grading (10 pts):** (a) 3 · (b) 2 · (c) 3 · (d) 2. In (a), sums of
+> $-0.0001$ or $0.0003$ from four-decimal rounding are correct; the student
+> should say so rather than "fix" them. The "why" sentence earns a full point
+> if it says these are the conditions that define the OLS line. In (c), using
+> $n$ instead of $n - 2$ in the SER (6.0801) loses 1 point. In (d), the
+> `Mean Sq` for Residuals must be $SSR/8$, and the student should notice it
+> equals $SER^2$. The F and p cells are graded in Question 3(d), not here.
+
+# Testing what the table says
+
+$df = 8$. Critical values: `qt(0.975, 8)` $= 2.3060$, `qt(0.95, 8)` $= 1.8595$,
+`qf(0.95, 1, 8)` $= 5.3177$.
+
+**(a)**
+$$
+SE(\hat\beta_1) = \frac{6.7978}{\sqrt{1376}} = \frac{6.7978}{37.0945} = 0.1833
+\qquad
+SE(\hat\beta_0) = 6.7978\sqrt{\frac{1}{10} + \frac{31^2}{1376}} = 6.7978\sqrt{0.7984} = 6.0740
+$$
+
+**(b)**
+
+| Coefficient | $t = \hat\beta_j / SE$ | $\lvert t \rvert$ vs. 2.3060 | two-sided $p$ | Decision at 5% |
+|---|---|---|---|---|
+| `dti` | $1.0153 / 0.1833 = 5.5401$ | larger | 0.0005 | **reject** $\beta_1 = 0$ |
+| `(Intercept)` | $12.5269 / 6.0740 = 2.0624$ | smaller | 0.0731 | **fail to reject** $\beta_0 = 0$ |
+
+**(c)**
+
+i. $t = 5.5401 > 1.8595$ → **reject**. The estimate has the predicted sign,
+so the one-sided $p$ is half the two-sided one: $p = 0.0005473 / 2 = 0.0003$.
+
+ii. $t = (1.0153 - 1)/0.1833 = 0.0153/0.1833 = 0.0833$. Since
+$0.0833 < 1.8595$, **fail to reject**; $p$ = `pt(0.0833, 8, lower.tail = FALSE)`
+= 0.4678. The data cannot tell a one-for-one slope from a steeper one.
+
+iii. Picking the tail after seeing the sign puts all 5% in whichever tail the
+data already point to, which in effect doubles the false-rejection rate to
+10%. The direction has to come from theory, chosen before the estimate is seen.
+
+**(d)** The overall $F$ tests $H_0: \beta_1 = 0$, that `dti` explains
+nothing.
+$$
+F = \frac{1418.3205 / 1}{369.6795 / 8} = \frac{1418.3205}{46.2099} = 30.6930
+\qquad
+p = 0.0005
+\qquad
+t^2 = 5.5401^2 = 30.6930 \checkmark
+$$
+With one regressor, "all slopes are zero" and "this one slope is zero" are the
+same single restriction, so the joint test and the $t$-test are the same test,
+and $F = t^2$. Note the $F$ $p$-value equals the two-sided $p$ for `dti`.
+
+**(e)**
+
+```
+Call:
+lm(formula = util ~ dti, data = cards)
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)
+(Intercept)  12.5269     6.0740   2.062 0.073091 .
+dti           1.0153     0.1833   5.540 0.000547 ***
+
+Residual standard error: 6.798 on 8 degrees of freedom
+Multiple R-squared:  0.7932,  Adjusted R-squared:  0.7674
+F-statistic: 30.69 on 1 and 8 DF,  p-value: 0.0005473
+```
+
+> **Grading (10 pts):** (a) 2 · (b) 2 · (c) 3 · (d) 2 · (e) 1. In (b), a
+> student who uses 1.96 instead of the $t_8$ critical value reaches the same
+> decisions but loses 0.5. Small samples are exactly where the $t$
+> distribution matters. In (c)(ii), the key is subtracting 1 in the
+> numerator; a student who reuses $t = 5.54$ loses the full point. (c)(iii)
+> needs the idea that the error rate goes up, not just "it's cheating." In
+> (d), the student must state the hypothesis, and must *verify* $F = t^2$
+> numerically. (e) is a transcription check; the residual quantiles that R
+> also prints were not asked for.
+
+# Do it all in R
+
+**(a)**
+
+```{r}
+#| label: data
+cards <- data.frame(
+  dti  = c(12, 18, 20, 25, 30, 32, 38, 40, 45, 50),
+  inq  = c(0, 1, 0, 2, 1, 3, 1, 2, 4, 2),
+  util = c(22, 35, 28, 41, 37, 55, 46, 52, 68, 56)
+)
+```
+
+```{r}
+#| label: by-hand
+x <- cards$dti
+y <- cards$util
+n <- length(y)
+k <- 1
+
+Sxx <- sum((x - mean(x))^2)
+Sxy <- sum((x - mean(x)) * (y - mean(y)))
+TSS <- sum((y - mean(y))^2)
+
+b1 <- Sxy / Sxx
+b0 <- mean(y) - b1 * mean(x)
+
+uhat <- y - (b0 + b1 * x)
+SSR <- sum(uhat^2)
+ESS <- TSS - SSR
+
+R2 <- ESS / TSS
+adjR2 <- 1 - (SSR / (n - k - 1)) / (TSS / (n - 1))
+SER <- sqrt(SSR / (n - k - 1))
+
+se_b1 <- SER / sqrt(Sxx)
+se_b0 <- SER * sqrt(1 / n + mean(x)^2 / Sxx)
+t_b1 <- b1 / se_b1
+t_b0 <- b0 / se_b0
+p_b1 <- 2 * pt(-abs(t_b1), n - k - 1)
+p_b0 <- 2 * pt(-abs(t_b0), n - k - 1)
+F_stat <- (ESS / k) / (SSR / (n - k - 1))
+p_F <- pf(F_stat, k, n - k - 1, lower.tail = FALSE)
+
+round(c(b0 = b0, b1 = b1, se_b0 = se_b0, se_b1 = se_b1, t_b0 = t_b0,
+        t_b1 = t_b1, p_b0 = p_b0, p_b1 = p_b1), 4)
+round(c(TSS = TSS, ESS = ESS, SSR = SSR, R2 = R2, adjR2 = adjR2,
+        SER = SER, F = F_stat, p_F = p_F), 4)
+```
+
+```{r}
+#| label: lm
+reg1 <- lm(util ~ dti, data = cards)
+summary(reg1)
+anova(reg1)
+```
+
+Every hand number matches R. Expected discrepancies are only in the fourth
+decimal, from rounding $\hat\beta_1$ before computing fitted values.
+
+**(b)**
+
+```{r}
+#| label: one-sided
+df_r <- reg1$df.residual
+b1 <- coef(reg1)["dti"]
+se_b1 <- coef(summary(reg1))["dti", "Std. Error"]
+
+p_gt0 <- pt(b1 / se_b1, df_r, lower.tail = FALSE)
+p_gt1 <- pt((b1 - 1) / se_b1, df_r, lower.tail = FALSE)
+round(c(p_gt0 = unname(p_gt0), p_gt1 = unname(p_gt1)), 4)
+```
+
+**(c)**
+
+```{r}
+#| label: two-regressors
+reg2 <- lm(util ~ dti + inq, data = cards)
+summary(reg2)
+
+anova(reg1, reg2)
+
+SSR_r <- sum(resid(reg1)^2)
+SSR_u <- sum(resid(reg2)^2)
+q <- 1
+F_inq <- ((SSR_r - SSR_u) / q) / (SSR_u / reg2$df.residual)
+c(F_by_hand = F_inq, t_squared = coef(summary(reg2))["inq", "t value"]^2)
+```
+
+$F = 97.06$ on 1 and 7 df, $p = 0.00002$: reject $H_0: \beta_{\text{inq}} = 0$.
+Adding `inq` cuts $SSR$ from 369.68 to 24.87. One restriction again, so
+$F = t_{\text{inq}}^2$.
+
+**(d)** The `dti` coefficient falls by almost half, from 1.0153 to 0.5485.
+Holding inquiries fixed, an extra point of DTI goes with only about 0.55
+points more utilization. In this sample, high-DTI borrowers also tend to have
+more recent inquiries, and inquiries go with higher utilization. The
+one-regressor slope gave `dti` credit for part of the inquiries' association.
+That is omitted variable bias (Stock & Watson §6.1), and it is why "holding
+fixed" matters.
+
+> **Grading (10 pts):** (a) 4 · (b) 2 · (c) 2 · (d) 2. In (a), the document
+> must render with every chunk evaluated (no `eval: false` left); the written
+> comparison is worth 1 of the 4 points. In (b), watch for students who
+> compute `pt(b1 / se_b1, df_r)` without `lower.tail = FALSE` and get 0.9997.
+> Half credit if they then report $1 - 0.9997$ correctly. In (c), full credit
+> requires both the `anova(reg1, reg2)` output and the by-hand $F$ matching
+> $t^2$. In (d), the phrase "holding inquiries fixed" is required. The
+> explanation earns full credit for *any* version of "dti was picking up
+> some of inq's association." Naming omitted variable bias is a bonus, not
+> required.

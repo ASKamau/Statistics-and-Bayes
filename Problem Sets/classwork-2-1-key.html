@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Instructor: Ari Kamau">
+<meta name="dcterms.date" content="2026-11-02">
+
+<title>Classwork 2-1: Probability and Expectation — Answer Key</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="classwork-2-1-key_files/libs/clipboard/clipboard.min.js"></script>
+<script src="classwork-2-1-key_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="classwork-2-1-key_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="classwork-2-1-key_files/libs/quarto-html/popper.min.js"></script>
+<script src="classwork-2-1-key_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="classwork-2-1-key_files/libs/quarto-html/anchor.min.js"></script>
+<link href="classwork-2-1-key_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="classwork-2-1-key_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="classwork-2-1-key_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="classwork-2-1-key_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="classwork-2-1-key_files/libs/bootstrap/bootstrap-ddece7acc49c10840c0ac213a9051fea.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+</head><body class="fullcontent quarto-light">\usepackage{amsmath,amssymb,booktabs}
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+
+
+
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Classwork 2-1: Probability and Expectation — Answer Key</h1>
+<p class="subtitle lead">ECON 300 · Applied Statistics for Economists · Stock &amp; Watson Ch. 2</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Instructor: Ari Kamau </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">November 2, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Instructor copy — do not distribute.</strong> 40 points total (Q1: 8 · Q2: 12 · Q3: 12 · Q4: 8). All answers are rounded to four decimal places, as the assignment asks.</p>
+<p>Grading principle from the assignment: a hand/R disagreement that the student reports and diagnoses earns full credit. A hand answer that was quietly deleted earns none. Grading notes are set off as block quotes.</p>
+<section id="reading-the-notation" class="level1">
+<h1>Reading the notation</h1>
+<p><strong>(8 points)</strong> <span class="math inline">\(x = (3,\ 5,\ 2,\ 6)\)</span>, <span class="math inline">\(n = 4\)</span>.</p>
+<p><strong>(a)</strong> <span class="math display">\[
+\sum_{i=1}^{4} x_i = 3 + 5 + 2 + 6 = 16
+\qquad\qquad
+\bar{x} = \frac{1}{n}\sum_{i=1}^{4} x_i = \frac{16}{4} = 4
+\]</span></p>
+<p><strong>(b)</strong> <span class="math display">\[
+\sum_{i=1}^{4} 3x_i = 3(3) + 3(5) + 3(2) + 3(6) = 9 + 15 + 6 + 18 = 48 = 3 \times 16
+\]</span></p>
+<p>This illustrates that <strong>a constant factors out of a sum</strong>: <span class="math inline">\(\sum_i c\,x_i = c\sum_i x_i\)</span>.</p>
+<p><strong>(c)</strong> Square first, then add: <span class="math display">\[
+\sum_{i=1}^{4} x_i^2 = 3^2 + 5^2 + 2^2 + 6^2 = 9 + 25 + 4 + 36 = 74
+\]</span></p>
+<p><strong>(d)</strong> Add first, then square: <span class="math display">\[
+\left(\sum_{i=1}^{4} x_i\right)^2 = (3 + 5 + 2 + 6)^2 = 16^2 = 256
+\]</span></p>
+<ol start="3" type="a">
+<li><span class="math inline">\(\neq\)</span> (d). The sum of squares is not the square of the sum.</li>
+</ol>
+<p><strong>(e)</strong> <span class="math display">\[
+\sum_{i=1}^{4} (x_i - \bar{x}) = (3-4) + (5-4) + (2-4) + (6-4) = -1 + 1 - 2 + 2 = 0
+\]</span></p>
+<p>The surprise: <strong>deviations from the mean always sum to exactly zero.</strong> This isn’t a coincidence of these numbers. It holds for any data set, because <span class="math inline">\(\sum_i (x_i - \bar{x}) = \sum_i x_i - n\bar{x} = n\bar{x} - n\bar{x} = 0\)</span>.</p>
+<p><strong>(f)</strong> <span class="math inline">\(\mu\)</span> is the <strong>population</strong> mean, a fixed but usually unknown number describing the whole distribution. <span class="math inline">\(\bar{x}\)</span> is the <strong>sample</strong> mean, computed from the data we actually have and used to estimate <span class="math inline">\(\mu\)</span>. It changes from sample to sample.</p>
+<blockquote class="blockquote">
+<p><strong>Grading (8 pts):</strong> (a) 1.5 · (b) 1.5 · (c) 1 · (d) 1 · (e) 1.5 · (f) 1.5. Sums must be written out term by term; a bare final number earns half credit. In (b) the student must <em>name</em> the rule, not just observe that 48 is three times 16. In (e), a student who notes that the result is always zero (with or without the algebra) earns full credit; the algebra is a bonus. In (f), the key words are population vs.&nbsp;sample, or fixed parameter vs. estimate from data.</p>
+</blockquote>
+</section>
+<section id="the-distribution-of-one-random-variable" class="level1">
+<h1>The distribution of one random variable</h1>
+<p><strong>(12 points)</strong></p>
+<p><strong>(a) Margins.</strong></p>
+<p>Row sums: <span class="math inline">\(0.10 + 0.14 = 0.24\)</span>, <span class="math inline">\(0.20 + 0.10 = 0.30\)</span>, <span class="math inline">\(0.26 + 0.06 = 0.32\)</span>, <span class="math inline">\(0.12 + 0.02 = 0.14\)</span>. Column sums: <span class="math inline">\(0.10 + 0.20 + 0.26 + 0.12 = 0.68\)</span> and <span class="math inline">\(0.14 + 0.10 + 0.06 + 0.02 = 0.32\)</span>.</p>
+<p>Checks: <span class="math inline">\(0.24 + 0.30 + 0.32 + 0.14 = 1.00\)</span> and <span class="math inline">\(0.68 + 0.32 = 1.00\)</span>.</p>
+<p><strong>(b)</strong> <span class="math display">\[
+E(X) = \mu_X = \sum_i x_i\,P(X = x_i)
+= 0(0.24) + 1(0.30) + 2(0.32) + 3(0.14)
+= 0 + 0.30 + 0.64 + 0.42 = 1.36
+\]</span></p>
+<p>The expected number of branches in an applicant’s tract is <strong>1.36</strong>.</p>
+<p><strong>(c)</strong> <span class="math display">\[
+E(X^2) = \sum_i x_i^2\,P(X = x_i)
+= 0^2(0.24) + 1^2(0.30) + 2^2(0.32) + 3^2(0.14)
+= 0 + 0.30 + 1.28 + 1.26 = 2.84
+\]</span></p>
+<p><strong>(d)</strong> <span class="math display">\[
+\text{var}(X) = E(X^2) - [E(X)]^2 = 2.84 - (1.36)^2 = 2.84 - 1.8496 = 0.9904
+\]</span> <span class="math display">\[
+\sigma_X = \sqrt{0.9904} \approx 0.9952
+\]</span></p>
+<p><strong>(e)</strong> By definition, <span class="math display">\[
+E(Y) = \sum_y y\,P(Y = y) = 0 \cdot P(Y = 0) + 1 \cdot P(Y = 1) = P(Y = 1)
+\]</span> The <span class="math inline">\(y = 0\)</span> term vanishes, so the mean of a 0/1 variable is the probability it equals 1. Here, <span class="math inline">\(E(Y) = P(Y = 1) = \mathbf{0.32}\)</span>: 32% of applications are denied.</p>
+<blockquote class="blockquote">
+<p><strong>Grading (12 pts):</strong> (a) 3 · (b) 2 · (c) 2 · (d) 3 · (e) 2.</p>
+<ul>
+<li><ol type="a">
+<li>All six margins are required, plus both “sums to 1” checks.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li><strong>The classic error</strong> is squaring the probabilities, or computing <span class="math inline">\([E(X)]^2 = 1.8496\)</span> and calling it <span class="math inline">\(E(X^2)\)</span>. Either one costs 2 pts.</li>
+</ol></li>
+<li><ol start="4" type="a">
+<li>Carry the error forward. If the student’s (c) is wrong but (d) applies the formula correctly to it, give full credit for (d). A negative variance is a red flag the student should catch; if they catch it, give credit.</li>
+</ol></li>
+<li><ol start="5" type="a">
+<li>The derivation must show the <span class="math inline">\(0 \cdot P(Y=0)\)</span> term disappearing. A bare “0.32” earns 1 pt.</li>
+</ol></li>
+</ul>
+</blockquote>
+</section>
+<section id="two-random-variables-together" class="level1">
+<h1>Two random variables together</h1>
+<p><strong>(12 points)</strong></p>
+<p><strong>(a)</strong> <span class="math display">\[
+P(Y = 1 \mid X = 0) = \frac{P(X = 0,\, Y = 1)}{P(X = 0)} = \frac{0.14}{0.24} \approx 0.5833
+\]</span> <span class="math display">\[
+P(Y = 1 \mid X = 3) = \frac{P(X = 3,\, Y = 1)}{P(X = 3)} = \frac{0.02}{0.14} \approx 0.1429
+\]</span></p>
+<p><strong>(b)</strong> The overall denial rate is 0.32. Applicants in tracts with <strong>no</strong> branches are denied 58% of the time, well above average. Applicants in tracts with <strong>three</strong> branches are denied only about 14% of the time, well below average. Denial and branch presence are therefore <strong>not independent</strong>: knowing <span class="math inline">\(X\)</span> changes the probability of denial. (If they were independent, both conditional probabilities would equal 0.32.)</p>
+<p><strong>(c)</strong> Since <span class="math inline">\(Y^2 = Y\)</span>, <span class="math inline">\(E(Y^2) = E(Y) = 0.32\)</span>: <span class="math display">\[
+\text{var}(Y) = E(Y^2) - [E(Y)]^2 = 0.32 - (0.32)^2 = 0.32 - 0.1024 = 0.2176
+\]</span> <span class="math display">\[
+\sigma_Y = \sqrt{0.2176} \approx 0.4665
+\]</span></p>
+<p>(Equivalently, <span class="math inline">\(\text{var}(Y) = p(1-p) = 0.32 \times 0.68 = 0.2176\)</span>, which is the form used in the R code.)</p>
+<p><strong>(d)</strong> Only cells with <span class="math inline">\(x \neq 0\)</span> and <span class="math inline">\(y = 1\)</span> contribute: <span class="math display">\[
+\begin{aligned}
+E(XY) &amp;= \sum_x \sum_y x\,y\,P(X = x,\, Y = y) \\
+&amp;= (1)(1)(0.10) + (2)(1)(0.06) + (3)(1)(0.02) \\
+&amp;= 0.10 + 0.12 + 0.06 = 0.28
+\end{aligned}
+\]</span></p>
+<p><strong>(e)</strong> <span class="math display">\[
+\text{cov}(X,Y) = E(XY) - \mu_X\mu_Y = 0.28 - (1.36)(0.32) = 0.28 - 0.4352 = -0.1552
+\]</span> <span class="math display">\[
+\rho_{XY} = \frac{\text{cov}(X,Y)}{\sigma_X\,\sigma_Y}
+= \frac{-0.1552}{(0.9952)(0.4665)}
+= \frac{-0.1552}{0.4642} \approx -0.3343
+\]</span></p>
+<p><strong>(f)</strong> The <strong>negative</strong> sign means that applicants in tracts with more bank branches tend to be denied less often: as <span class="math inline">\(X\)</span> goes up, <span class="math inline">\(Y\)</span> tends to go down. This number does <strong>not</strong> establish causation. Opening a branch would not necessarily lower denial rates. Tracts with more branches may differ in income, credit histories, wealth, or racial composition, and those differences could drive both branch location and denial. Correlation also captures only the <em>linear</em> part of the relationship.</p>
+<blockquote class="blockquote">
+<p><strong>Grading (12 pts):</strong> (a) 2 · (b) 2 · (c) 2 · (d) 2 · (e) 3 · (f) 1.</p>
+<ul>
+<li><ol type="a">
+<li>The most common error is dividing by <span class="math inline">\(P(Y=1)\)</span> instead of <span class="math inline">\(P(X=x)\)</span> (e.g., <span class="math inline">\(0.14/0.32 = 0.4375\)</span>). That is <span class="math inline">\(P(X=0 \mid Y=1)\)</span>, a different question. Deduct 1 per part.</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>Full credit requires comparing <em>both</em> numbers to 0.32 and drawing a conclusion (dependence). “Independence” is not required vocabulary.</li>
+</ol></li>
+<li><ol start="5" type="a">
+<li>Accept <span class="math inline">\(\rho\)</span> between <span class="math inline">\(-0.3342\)</span> and <span class="math inline">\(-0.3345\)</span> (rounding of <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\sigma_Y\)</span>). Carry errors forward from (b)–(d).</li>
+</ol></li>
+<li><ol start="6" type="a">
+<li>Half for the sign interpretation, half for “not causal” (or “linear only”) with a reason. “Correlation isn’t causation” without a reason or example earns half of that half.</li>
+</ol></li>
+</ul>
+<p><em>Discussion point for Tuesday:</em> this table is a stylized version of the branch-desert / credit-access pattern, a natural bridge to omitted-variable bias later in the course.</p>
+</blockquote>
+</section>
+<section id="do-it-all-in-r" class="level1">
+<h1>Do it all in R</h1>
+<p><strong>(8 points)</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Question 1</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">2</span>, <span class="dv">6</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">length</span>(x)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>xbar <span class="ot">&lt;-</span> <span class="fu">sum</span>(x) <span class="sc">/</span> n</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x) <span class="co"># 1(a)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>xbar <span class="co"># 1(a)  the mean</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="dv">3</span> <span class="sc">*</span> x) <span class="co"># 1(b)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 48</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x<span class="sc">^</span><span class="dv">2</span>) <span class="co"># 1(c)  square first, then add</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 74</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x)<span class="sc">^</span><span class="dv">2</span> <span class="co"># 1(d)  add first, then square</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 256</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x <span class="sc">-</span> xbar) <span class="co"># 1(e)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Question 2 — the joint distribution as a matrix.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Rows are X = 0,1,2,3.  Columns are Y = 0,1.</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">0.10</span>, <span class="fl">0.14</span>, <span class="fl">0.20</span>, <span class="fl">0.10</span>, <span class="fl">0.26</span>, <span class="fl">0.06</span>, <span class="fl">0.12</span>, <span class="fl">0.02</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">4</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">X =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">Y =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>xvals <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>yvals <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(J) <span class="co"># must be 1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>px <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(J) <span class="co"># the margins of X</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>py <span class="ot">&lt;-</span> <span class="fu">colSums</span>(J) <span class="co"># the margins of Y</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>px</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   0    1    2    3 
+0.24 0.30 0.32 0.14 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(px)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>py</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   0    1 
+0.68 0.32 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(py)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Question 2 — the joint distribution as a matrix.</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Rows are X = 0,1,2,3.  Columns are Y = 0,1.</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="fl">0.10</span>, <span class="fl">0.14</span>, <span class="fl">0.20</span>, <span class="fl">0.10</span>, <span class="fl">0.26</span>, <span class="fl">0.06</span>, <span class="fl">0.12</span>, <span class="fl">0.02</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">4</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="at">X =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">Y =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>xvals <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">3</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>yvals <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(J) <span class="co"># must be 1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Question 2(b)-(e)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>EX <span class="ot">&lt;-</span> <span class="fu">sum</span>(xvals <span class="sc">*</span> px) <span class="co"># E(X)</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>EX2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(xvals<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> px) <span class="co"># E(X^2)</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>varX <span class="ot">&lt;-</span> EX2 <span class="sc">-</span> EX<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>sdX <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(varX)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>EY <span class="ot">&lt;-</span> <span class="fu">sum</span>(yvals <span class="sc">*</span> py)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">EX =</span> EX, <span class="at">EX2 =</span> EX2, <span class="at">varX =</span> varX, <span class="at">sdX =</span> sdX, <span class="at">EY =</span> EY), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    EX    EX2   varX    sdX     EY 
+1.3600 2.8400 0.9904 0.9952 0.3200 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Question 3</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>J[<span class="st">"0"</span>, <span class="st">"1"</span>] <span class="sc">/</span> px[<span class="st">"0"</span>] <span class="co"># 3(a)  P(Y = 1 | X = 0)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        0 
+0.5833333 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>J[<span class="st">"3"</span>, <span class="st">"1"</span>] <span class="sc">/</span> px[<span class="st">"3"</span>] <span class="co">#       P(Y = 1 | X = 3)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        3 
+0.1428571 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>varY <span class="ot">&lt;-</span> EY <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> EY) <span class="co"># 3(c)</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>sdY <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(varY)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>EXY <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">outer</span>(xvals, yvals) <span class="sc">*</span> J) <span class="co"># 3(d)  outer() builds the table of x*y</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>covXY <span class="ot">&lt;-</span> EXY <span class="sc">-</span> EX <span class="sc">*</span> EY <span class="co"># 3(e)</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> covXY <span class="sc">/</span> (sdX <span class="sc">*</span> sdY)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">varY =</span> varY, <span class="at">sdY =</span> sdY, <span class="at">EXY =</span> EXY, <span class="at">cov =</span> covXY, <span class="at">rho =</span> rho), <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   varY     sdY     EXY     cov     rho 
+ 0.2176  0.4665  0.2800 -0.1552 -0.3343 </code></pre>
+</div>
+</div>
+<p><strong>Instructor extra (not required of the student):</strong> the full conditional denial rate at every value of <span class="math inline">\(X\)</span> shows the monotone pattern behind the negative correlation. A built-in cross-check confirms <span class="math inline">\(\rho\)</span>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(J[, <span class="st">"1"</span>] <span class="sc">/</span> px, <span class="dv">4</span>) <span class="co"># P(Y = 1 | X = x) for x = 0, 1, 2, 3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     0      1      2      3 
+0.5833 0.3333 0.1875 0.1429 </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cross-check rho by simulating 1,000,000 draws from the joint distribution</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>cells <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">X =</span> xvals, <span class="at">Y =</span> yvals)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>draws <span class="ot">&lt;-</span> cells[<span class="fu">sample</span>(<span class="fu">nrow</span>(cells), <span class="fl">1e6</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>, <span class="at">prob =</span> <span class="fu">as.vector</span>(J)), ]</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(draws<span class="sc">$</span>X, draws<span class="sc">$</span>Y), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.334</code></pre>
+</div>
+</div>
+<p><strong>Hand vs.&nbsp;R comparison (model answer).</strong> Every hand answer matches R to four decimal places: <span class="math inline">\(\sum x_i = 16\)</span>, <span class="math inline">\(\bar x = 4\)</span>, <span class="math inline">\(E(X) = 1.36\)</span>, <span class="math inline">\(\text{var}(X) = 0.9904\)</span>, <span class="math inline">\(E(Y) = 0.32\)</span>, <span class="math inline">\(E(XY) = 0.28\)</span>, <span class="math inline">\(\text{cov}(X,Y) = -0.1552\)</span>, and <span class="math inline">\(\rho = -0.3343\)</span>. The only place rounding could matter is <span class="math inline">\(\rho\)</span>. Rounding <span class="math inline">\(\sigma_X\)</span> and <span class="math inline">\(\sigma_Y\)</span> to four places before dividing can move the fourth decimal. Carrying full precision, as R does, gives <span class="math inline">\(-0.3343\)</span>.</p>
+<blockquote class="blockquote">
+<p><strong>Grading (8 pts):</strong> <code>joint</code> 2 · <code>moments</code> 2 · <code>two-variables</code> 3 · comparison paragraph 1. Each chunk earns credit only if <code>eval: false</code> is removed and it runs. Common errors:</p>
+<ul>
+<li><code>xvals * px</code> used for <span class="math inline">\(E(X^2)\)</span> (forgot to square). -1.</li>
+<li><code>J["3", "1"] / py["1"]</code> (wrong denominator, the same error as in 3(a)). -1.</li>
+<li><code>varX &lt;- EX2 - EX</code> (forgot to square the mean). -1.</li>
+</ul>
+<p>The comparison paragraph must name a disagreement if one exists. “They all matched” earns the point only if they actually did.</p>
+</blockquote>
+</section>
+<section id="answer-summary" class="level1 unnumbered">
+<h1 class="unnumbered">Answer summary</h1>
+
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

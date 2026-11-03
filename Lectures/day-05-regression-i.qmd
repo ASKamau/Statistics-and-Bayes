@@ -1,0 +1,925 @@
+---
+title: "Day 5 — Regression I: Fitting a Line and Splitting the Variation"
+subtitle: "ECON 300 · Applied Statistics for Economists"
+author: "Ari Kamau"
+date: "2026-11-05"
+format:
+  revealjs:
+    theme: default
+    slide-number: c/t
+    chalkboard: true
+    preview-links: auto
+    code-line-numbers: false
+    incremental: false
+    smaller: true
+    scrollable: true
+    width: 1280
+    height: 720
+execute:
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+set.seed(1105)
+
+# The Capital One card portfolio used all morning (simulated).
+n <- 500
+fico <- round(pmin(pmax(rnorm(n, 690, 50), 560), 830))
+util <- round(pmin(pmax(160 - 0.15 * fico + rnorm(n, 0, 12), 0), 100), 1)
+cards <- tibble(fico, util)
+reg <- lm(util ~ fico, data = cards)
+```
+
+::: {.notes}
+MASTER DECK. Every "You Try" slide is followed immediately by its solution
+slide. Present straight through; advance one slide to reveal the answer.
+
+Press S for speaker notes, B for the chalkboard, ESC for the overview.
+
+TIMING
+0-10   News article
+10-20  The scenario, notation, the population line (slides 2-5)
+20-35  You Try 1, OLS, the formulas, You Try 2 (slides 6-11)
+35-60  The two OLS facts, sums of squares, R^2, SER, You Try 3 (slides 12-17)
+60-65  Break
+65-80  The SE idea; simulate the portfolio; You Try 4 (slides 18-21)
+80-100 You Try 5 (sums of squares in R) (slides 22-23)
+100-120 You Try 6 (the sampling distribution of the slope), wrap (slides 24-27)
+
+IF YOU FALL BEHIND: cut You Try 5 to just R^2 and the residual SE. Do NOT cut
+You Try 2/3 (the hand arithmetic) or You Try 6. The homework is built on 2/3,
+and 6 is what makes the Std. Error column mean something on Tuesday.
+
+SOURCE: Stock & Watson, Introduction to Econometrics, §4.1-4.3 and 4.5 (the
+model, OLS, measures of fit, sampling distribution of the OLS estimator), with
+§5.4 for the homoskedasticity-only standard error R prints.
+
+All data in this deck is simulated. Say so on slide 3 and do not let her
+quote any of these numbers as facts about Capital One.
+:::
+
+## This morning
+
+**Hour 1 · Theory**
+
+- The linear regression model: a line, plus what the line misses
+- Ordinary Least Squares (OLS): which line, and why that one
+- Sums of squares: splitting the variation in $Y$ into *explained* and *missed*
+- $R^2$ and the standard error of the regression
+
+**Hour 2 · Code**
+
+- Building OLS by hand in R, then checking it against `lm()`
+- Rebuilding $R^2$ from sums of squares
+- Watching the slope bounce from sample to sample: what "Std. Error" means
+
+**Reading:** Stock & Watson §4.1–4.3, §4.5 · **Assigned today:** Classwork 3-1
+
+::: {.notes}
+Frame the day in one sentence: for six weeks we have described one variable
+at a time; today we describe how one variable moves with another, and we do
+it with a single line.
+
+Tell her the destination up front. By Tuesday she should be able to read every
+number in a regression table. Today covers the top half: Estimate, Std. Error,
+and the sums of squares that sit underneath R-squared. Tuesday covers t, p,
+and F.
+:::
+
+## Where we are
+
+Two weeks ago, in Classwork 2-1, you computed a **correlation** between bank
+branches and denials.
+
+. . .
+
+Correlation answered: *do they move together, and how tightly?*
+
+It could not answer: **by how much?**
+
+. . .
+
+> If a borrower's credit score were 50 points lower, how much more of their
+> credit line would we expect them to be using?
+
+That is a question about a **slope**. Regression is the tool that estimates
+slopes.
+
+::: {.notes}
+Connect to what she already owns. She computed cov(X,Y) and rho by hand. The
+OLS slope is cov over var, and she will see that formula in fifteen minutes.
+Promise it now: "you already know 80% of the formula."
+
+Correlation is unit-free on purpose. A slope is in units: percentage points
+of utilization per FICO point. That is exactly what makes it useful to a
+business.
+:::
+
+## The job: Capital One, Card Credit Risk
+
+You are an analyst on a **credit card credit risk team**. Your manager asks:
+
+> "How does credit utilization move with FICO score in our portfolio?"
+
+. . .
+
+| Variable | Meaning | Units |
+|---|---|---|
+| `util` | **Utilization**: balance ÷ credit line | percent (0–100) |
+| `fico` | FICO credit score at the last refresh | points (300–850) |
+
+. . .
+
+High utilization is an early-warning sign: borrowers who max out their lines
+miss payments more often. If utilization tracks FICO, the team can watch
+lower-score accounts more closely and size credit-line increases more
+carefully.
+
+::: {.callout-warning appearance="minimal"}
+The data are **simulated**: 500 made-up accounts. The setting is real; the
+numbers are not.
+:::
+
+::: {.notes}
+Two minutes on why this question would actually be asked. Credit risk teams
+decide credit-line increases and decreases, watch-lists, and collections
+strategy. Utilization is one of the strongest predictors of default in card
+portfolios. So the question is realistic.
+
+Plant a seed for later: FICO is partly computed FROM utilization. So this
+regression describes an association; it does not say which causes which.
+Come back to it if she asks; otherwise it lives in the "what can go wrong"
+discussion on Tuesday.
+:::
+
+## Look before you fit
+
+```{r}
+#| label: scatter
+#| echo: false
+#| fig-width: 10
+#| fig-height: 4.6
+#| fig-align: center
+ggplot(cards, aes(fico, util)) +
+  geom_point(alpha = 0.45, colour = "#2C3E50") +
+  labs(
+    x = "FICO score",
+    y = "Utilization (%)",
+    title = "500 card accounts (simulated)"
+  ) +
+  theme_minimal(base_size = 15)
+```
+
+Downward and noisy. A line will summarize the *trend*; it will not pass
+through the points.
+
+::: {.notes}
+Ask her before advancing: "If you had to draw one straight line through this
+cloud with a ruler, where would it go?" Have her sketch it on the chalkboard.
+That sketch is the thing OLS is about to formalize.
+
+Point out the spread: two accounts at the same FICO can have very different
+utilization. That vertical spread is the error term, and it never goes away.
+:::
+
+## The linear regression model
+
+$$
+\underbrace{Y_i}_{\text{outcome}} \;=\;
+\underbrace{\beta_0 + \beta_1 X_i}_{\text{population regression line}}
+\;+\;
+\underbrace{u_i}_{\text{error term}}
+$$
+
+| Symbol | Name | In our problem |
+|---|---|---|
+| $Y_i$ | dependent variable, outcome | utilization of account $i$ |
+| $X_i$ | independent variable, regressor | FICO score of account $i$ |
+| $\beta_0$ | intercept | predicted $Y$ when $X = 0$ |
+| $\beta_1$ | **slope** | change in $Y$ for a **one-unit** increase in $X$ |
+| $u_i$ | error | everything else that moves utilization |
+
+. . .
+
+Greek letters with no hat are the **population truth**: fixed, unknown.
+With a hat ($\hat\beta_0, \hat\beta_1, \hat Y_i$), they are **estimates
+from our sample**. R prints hats.
+
+::: {.notes}
+Stock & Watson §4.1. This is the most important slide of the day; slow down.
+
+The error term u is not a "mistake." It is every other cause of utilization:
+income shocks, spending habits, a car repair. We do not observe it.
+
+Same population/sample distinction as Day 4: mu vs x-bar, sigma vs s. Now
+beta vs beta-hat. She should hear the parallel out loud.
+
+Write on the board: beta_1 = "rise over run" = (change in Y)/(change in X).
+:::
+
+## You Try 1 — Read a fitted line
+
+Suppose the fitted line for our portfolio is
+
+$$
+\widehat{\text{util}} = 152.5 - 0.139 \times \text{fico}
+$$
+
+**(a)** Predict utilization for an account with FICO 650, and for one with
+FICO 750.
+
+**(b)** How much lower is predicted utilization for the 750 account? Where
+does that number come from?
+
+**(c)** In one sentence, what does $-0.139$ mean? Use units.
+
+**(d)** The intercept says an account with FICO 0 uses 152.5% of its line.
+Why should we not believe that?
+
+::: {.notes}
+Four minutes, by hand. Calculator allowed.
+
+(b) is the point: 100 points times -0.139 is -13.9. The slope times the
+change in X gives the change in the prediction. She should see that she
+did not need part (a) to answer (b).
+
+(d) Two answers, both right: FICO scores run 300-850, so 0 is not a real
+score; and nobody in our data is anywhere near 0, so we are extrapolating
+far outside the sample. Utilization over 100% is the giveaway.
+:::
+
+## Solution 1
+
+**(a)** $152.5 - 0.139(650) = 152.5 - 90.35 = 62.15\%$ ·
+$\;152.5 - 0.139(750) = 152.5 - 104.25 = 48.25\%$
+
+**(b)** $62.15 - 48.25 = 13.9$ points lower, which is $100 \times 0.139$.
+Slope × change in $X$ = change in the prediction.
+
+**(c)** Each additional FICO point is associated with **0.139 percentage
+points lower** utilization, on average. (Equivalently: 1.39 points lower per
+10 FICO points.)
+
+**(d)** FICO scores start at 300, and no account in the data is near 0. The
+intercept anchors the height of the line; reading it literally is
+**extrapolation**.
+
+::: {.notes}
+Insist on "associated with" and "on average" in (c). Not "causes," not
+"every borrower." Those two phrases do a lot of honest work.
+
+The intercept trap returns in the homework (the intercept is at DTI = 0,
+which is at least possible). Flag that now.
+:::
+
+## Which line? Ordinary Least Squares
+
+```{r}
+#| label: resid-plot
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.9
+#| fig-align: center
+set.seed(7)
+few <- slice_sample(cards, n = 40)
+few_reg <- lm(util ~ fico, data = few)
+ggplot(few, aes(fico, util)) +
+  geom_segment(
+    aes(xend = fico, yend = fitted(few_reg)),
+    colour = "#E74C3C",
+    alpha = 0.7
+  ) +
+  geom_abline(
+    intercept = coef(few_reg)[1],
+    slope = coef(few_reg)[2],
+    colour = "#18BC9C",
+    linewidth = 1.2
+  ) +
+  geom_point(size = 2.4, colour = "#2C3E50") +
+  labs(x = "FICO score", y = "Utilization (%)") +
+  theme_minimal(base_size = 15)
+```
+
+Each red segment is a **residual**: $\hat u_i = Y_i - \hat Y_i$, the actual
+value minus the line's prediction. OLS chooses the line that makes
+
+$$
+\sum_{i=1}^{n} \hat u_i^{\,2} = \sum_{i=1}^{n} \left(Y_i - \hat\beta_0 - \hat\beta_1 X_i\right)^2
+\quad \textbf{as small as possible.}
+$$
+
+::: {.notes}
+Stock & Watson §4.2. Forty accounts, so the segments are visible.
+
+Why square? Two reasons, both said plainly. (1) Positive and negative misses
+would cancel if we just added them. (2) Squaring makes the minimization
+solvable with a closed-form formula, which is next slide.
+
+The residual u-hat is the sample version of the error u. Same hat rule.
+:::
+
+## The OLS formulas
+
+The minimization has a closed-form answer:
+
+$$
+\hat\beta_1 \;=\; \frac{\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y)}{\sum_{i=1}^n (X_i - \bar X)^2}
+\;=\; \frac{s_{XY}}{s_X^2}
+\qquad\qquad
+\hat\beta_0 \;=\; \bar Y - \hat\beta_1 \bar X
+$$
+
+. . .
+
+::: {.columns}
+::: {.column width="48%"}
+**The slope** is the sample covariance of $X$ and $Y$ divided by the sample
+variance of $X$. You computed both in Classwork 2-1.
+:::
+::: {.column width="48%"}
+**The intercept** makes the line pass through the point of means
+$(\bar X, \bar Y)$. Every OLS line does.
+:::
+:::
+
+. . .
+
+Shorthand we'll use all week:
+$\;S_{xx} = \sum (X_i - \bar X)^2 \quad S_{xy} = \sum (X_i - \bar X)(Y_i - \bar Y)$,
+so $\hat\beta_1 = S_{xy}/S_{xx}$.
+
+::: {.notes}
+We do not derive this; it is calculus (Stock & Watson Appendix 4.2). Tell
+her that it is derived, that the derivation is two partial derivatives set
+to zero, and that she does not need it for this course.
+
+The n-1 in s_XY and s_X^2 cancels top and bottom, which is why S_xy/S_xx
+gives the same number. Show that on the board in one line.
+
+"Passes through the means" is worth a picture: put a dot at (x-bar, y-bar)
+on the scatter and draw the line through it.
+:::
+
+## You Try 2 — OLS by hand
+
+Five accounts. $X$ = missed payments in the last 12 months; $Y$ = utilization (%).
+
+| Account | 1 | 2 | 3 | 4 | 5 |
+|---|---|---|---|---|---|
+| $X_i$ | 0 | 1 | 2 | 3 | 4 |
+| $Y_i$ | 30 | 38 | 52 | 58 | 72 |
+
+**(a)** Compute $\bar X$ and $\bar Y$.
+
+**(b)** Make a table with columns $X_i - \bar X$, $\;Y_i - \bar Y$,
+$\;(X_i - \bar X)^2$, $\;(X_i - \bar X)(Y_i - \bar Y)$. Sum the last two
+columns to get $S_{xx}$ and $S_{xy}$.
+
+**(c)** Compute $\hat\beta_1$ and $\hat\beta_0$. Interpret $\hat\beta_1$.
+
+::: {.notes}
+Eight minutes. This is the core skill of the homework. Let her struggle with
+the table layout; the table IS the method.
+
+Answers on the next slide. Common error: forgetting to subtract the mean
+before multiplying in the cross-product column.
+:::
+
+## Solution 2
+
+**(a)** $\bar X = 10/5 = 2$ · $\bar Y = 250/5 = 50$
+
+**(b)**
+
+| $i$ | $X_i - \bar X$ | $Y_i - \bar Y$ | $(X_i - \bar X)^2$ | $(X_i - \bar X)(Y_i - \bar Y)$ |
+|---|---|---|---|---|
+| 1 | −2 | −20 | 4 | 40 |
+| 2 | −1 | −12 | 1 | 12 |
+| 3 | 0 | 2 | 0 | 0 |
+| 4 | 1 | 8 | 1 | 8 |
+| 5 | 2 | 22 | 4 | 44 |
+| **Sum** | 0 | 0 | $S_{xx} = 10$ | $S_{xy} = 104$ |
+
+**(c)** $\hat\beta_1 = 104/10 = 10.4$ · $\;\hat\beta_0 = 50 - 10.4(2) = 29.2$
+
+Each additional missed payment is associated with **10.4 percentage points
+higher** utilization, on average.
+
+::: {.notes}
+Point at the two zeros in the Sum row for the deviation columns. Deviations
+from the mean always sum to zero; she proved that in Classwork 2-1, 1(e).
+Same fact, new place.
+
+Keep this table on screen or on the board. You Try 3 builds on it.
+:::
+
+## Two facts OLS always guarantees
+
+Fitted values: $\hat Y_i = 29.2 + 10.4 X_i$
+
+| $i$ | $Y_i$ | $\hat Y_i$ | $\hat u_i = Y_i - \hat Y_i$ | $X_i \hat u_i$ |
+|---|---|---|---|---|
+| 1 | 30 | 29.2 | 0.8 | 0 |
+| 2 | 38 | 39.6 | −1.6 | −1.6 |
+| 3 | 52 | 50.0 | 2.0 | 4.0 |
+| 4 | 58 | 60.4 | −2.4 | −7.2 |
+| 5 | 72 | 70.8 | 1.2 | 4.8 |
+| **Sum** | | | **0** | **0** |
+
+. . .
+
+1. **The residuals sum to zero:** $\sum \hat u_i = 0$. The line is not too
+   high or too low on average.
+2. **The residuals are uncorrelated with $X$:** $\sum X_i \hat u_i = 0$. The
+   line has used up everything $X$ can linearly explain.
+
+These are not luck. They are the two conditions that *define* the OLS line.
+They are your arithmetic check on the homework.
+
+::: {.notes}
+If either sum is not zero (up to rounding) in her homework, there is an
+arithmetic error upstream. Say that explicitly; it turns a theorem into a
+debugging tool.
+
+Fact 2, in plain words: if the residuals were still correlated with X, you
+could tilt the line and do better. So at the best line, they are not.
+:::
+
+## Sums of squares: where the variation goes
+
+The total variation in $Y$ splits exactly into two pieces:
+
+$$
+\underbrace{\sum (Y_i - \bar Y)^2}_{TSS} \;=\;
+\underbrace{\sum (\hat Y_i - \bar Y)^2}_{ESS} \;+\;
+\underbrace{\sum \hat u_i^{\,2}}_{SSR}
+$$
+
+| Stock & Watson | Name | What it measures | Where R puts it |
+|---|---|---|---|
+| $TSS$ | Total sum of squares | how much $Y$ varies around its mean | not printed; add the `Sum Sq` column |
+| $ESS$ | Explained sum of squares | variation the **line** accounts for | `anova()`: the row named after $X$ |
+| $SSR$ | Sum of squared residuals | variation the line **missed** | `anova()`: the `Residuals` row |
+
+::: {.notes}
+Stock & Watson §4.3. The textbook uses ESS / SSR / TSS. Your August notes
+used SS_reg / SS_res / SS_tot. Same three objects. R's anova() table uses
+neither name: it labels the explained row by the regressor's name.
+
+The careful warning: SSR in Stock & Watson means the sum of squared
+RESIDUALS. Some other books use SSR for the regression sum of squares. Tell
+her to always check which convention a source is using. In this class SSR
+is residuals.
+
+Analogy that works: TSS is the whole pie. The line eats ESS. SSR is what is
+left on the plate.
+:::
+
+## $R^2$ and the standard error of the regression
+
+$$
+R^2 \;=\; \frac{ESS}{TSS} \;=\; 1 - \frac{SSR}{TSS}
+\qquad\qquad
+SER \;=\; s_{\hat u} \;=\; \sqrt{\frac{SSR}{n-2}}
+$$
+
+::: {.columns}
+::: {.column width="48%"}
+**$R^2$**: the **share** of the variation in $Y$ explained by $X$. Between 0
+and 1. No units.
+
+$R^2$ is **not** a grade on the model. A low $R^2$ can still come with a
+precisely estimated, important slope.
+:::
+::: {.column width="48%"}
+**SER**: the **typical size of a miss**, in the units of $Y$.
+
+Divide by $n - 2$, not $n$: we used up two degrees of freedom estimating
+$\hat\beta_0$ and $\hat\beta_1$.
+
+R calls this the **Residual standard error**.
+:::
+:::
+
+::: {.notes}
+Stock & Watson §4.3. Same n-1 logic as the sample variance on Day 3: each
+estimated parameter costs one degree of freedom. With one regressor we
+estimated two parameters, so n-2.
+
+Common misreading to kill: "R-squared of 0.24 means the model is bad." In
+the portfolio, FICO explains about a quarter of the variation in utilization.
+For one variable that is substantial. Credit risk models routinely run with
+modest R-squared and are still useful.
+:::
+
+## You Try 3 — Finish the five accounts
+
+Use the residuals from two slides ago and your table from You Try 2.
+
+**(a)** Compute $TSS = \sum (Y_i - \bar Y)^2$.
+
+**(b)** Compute $SSR = \sum \hat u_i^{\,2}$.
+
+**(c)** Compute $ESS$ two ways: as $TSS - SSR$, and directly as
+$\hat\beta_1^{\,2}\, S_{xx}$. Do they agree?
+
+**(d)** Compute $R^2$ and the $SER$. Interpret each in one sentence.
+
+::: {.notes}
+Eight minutes.
+
+(c) uses a shortcut she has not seen: with one regressor, ESS = beta1-hat
+squared times S_xx. Why: Y-hat minus Y-bar = beta1-hat (X - X-bar), square
+it and sum. Show it on the board after she has computed both numbers and seen
+that they agree. The shortcut saves a lot of arithmetic on the homework.
+:::
+
+## Solution 3
+
+**(a)** $TSS = (-20)^2 + (-12)^2 + 2^2 + 8^2 + 22^2 = 400 + 144 + 4 + 64 + 484 = 1096$
+
+**(b)** $SSR = 0.8^2 + 1.6^2 + 2.0^2 + 2.4^2 + 1.2^2 = 0.64 + 2.56 + 4 + 5.76 + 1.44 = 14.4$
+
+**(c)** $ESS = 1096 - 14.4 = 1081.6$ · and $\;\hat\beta_1^2 S_{xx} = 10.4^2 \times 10 = 108.16 \times 10 = 1081.6$ ✓
+
+**(d)** $R^2 = 1081.6 / 1096 = 0.9869$: missed payments explain about 98.7%
+of the variation in utilization across these five accounts.
+
+$SER = \sqrt{14.4 / (5 - 2)} = \sqrt{4.8} = 2.19$: the line typically misses
+by about 2.2 percentage points.
+
+::: {.notes}
+An R-squared of 0.99 is a warning, not a triumph. Five hand-picked accounts
+almost on a line is not what real data look like. The 500-account portfolio
+gives about 0.24, and that is the realistic number.
+
+Bridge to the break: "Everything you just did by hand, R does in one line.
+After the break we make R show its work."
+:::
+
+## How sure are we about $\hat\beta_1$?
+
+A different 500 accounts would give a **different** $\hat\beta_1$. Like
+$\bar Y$ on Day 4, $\hat\beta_1$ is a **random variable** with a sampling
+distribution (S&W §4.5).
+
+. . .
+
+Its standard deviation is estimated by the **standard error**:
+
+$$
+SE(\hat\beta_1) \;=\; \frac{SER}{\sqrt{S_{xx}}}
+\;=\; \sqrt{\frac{SSR/(n-2)}{\sum (X_i - \bar X)^2}}
+$$
+
+. . .
+
+::: {.columns}
+::: {.column width="48%"}
+**SE shrinks when:**
+
+- the line misses less (small SER)
+- $X$ is spread out (big $S_{xx}$)
+- you have more data ($S_{xx}$ grows with $n$)
+:::
+::: {.column width="48%"}
+Five accounts: $SE = 2.19/\sqrt{10} = 0.693$.
+
+So $\hat\beta_1 = 10.4$ with a standard error of about 0.7. **Tuesday** we
+ask whether 10.4 is far from zero *in units of that 0.7*.
+:::
+:::
+
+::: {.notes}
+This is the formula R's summary() uses: the homoskedasticity-only standard
+error (Stock & Watson §5.4). The textbook prefers robust standard errors,
+which allow the spread of u to vary with X. At this level, use R's default
+and know that the alternative exists. Tuesday has a one-line mention.
+
+Intuition for "X spread out": if every account had nearly the same FICO,
+you could not learn the slope at all. Leverage comes from variation in X.
+Draw two scatters on the board, one with X bunched, one with X spread.
+:::
+
+# Hour 2 · Code
+
+## The portfolio, simulated
+
+```{r}
+#| label: sim-show
+#| eval: false
+set.seed(1105)
+n <- 500
+fico <- round(pmin(pmax(rnorm(n, 690, 50), 560), 830)) # scores between 560 and 830
+util <- 160 - 0.15 * fico + rnorm(n, 0, 12) # the TRUE line, plus noise
+util <- round(pmin(pmax(util, 0), 100), 1) # utilization stays in 0-100
+cards <- tibble(fico, util)
+```
+
+```{r}
+#| label: sim-peek
+head(cards, 4)
+```
+
+We **wrote down the truth**: $\beta_0 = 160$, $\beta_1 = -0.15$. Real data
+never tells you that. Simulated data does, so we can check whether OLS finds
+it.
+
+::: {.notes}
+This is the advantage of simulation she saw on Day 4: we know the answer, so
+we can grade the estimator.
+
+pmin and pmax just clip values into a range. Do not spend time on them.
+:::
+
+## You Try 4 — OLS by hand, in R
+
+Complete the code. Then check it against `lm()`.
+
+```{r}
+#| label: you-try-4
+#| eval: false
+x <- cards$fico
+y <- cards$util
+
+Sxx <- sum((x - mean(x))^____)
+Sxy <- sum((x - ____) * (y - ____))
+
+b1 <- ____ / ____
+b0 <- mean(y) - ____ * mean(x)
+c(b0 = b0, b1 = b1)
+
+reg <- lm(util ~ fico, data = cards)
+coef(reg) # do they match?
+```
+
+How close is $\hat\beta_1$ to the true $-0.15$? Should it be exact?
+
+::: {.notes}
+Six minutes. These are the exact steps of You Try 2, typed instead of
+written. Make that link out loud.
+
+The "should it be exact" question is Day 4 again: no, the estimate has
+sampling error. It will be close, not equal.
+:::
+
+## Solution 4
+
+```{r}
+#| label: you-try-4-soln
+x <- cards$fico
+y <- cards$util
+
+Sxx <- sum((x - mean(x))^2)
+Sxy <- sum((x - mean(x)) * (y - mean(y)))
+
+b1 <- Sxy / Sxx
+b0 <- mean(y) - b1 * mean(x)
+c(b0 = b0, b1 = b1)
+coef(lm(util ~ fico, data = cards))
+```
+
+They match to every digit. And $\hat\beta_1 \approx$ `r round(coef(reg)[2], 3)`
+is close to the truth, $-0.15$, but not equal: that gap is **sampling error**.
+
+::: {.notes}
+Pause on the match. `lm()` is not magic; it computes the formula she just
+wrote. Everything in the regression table is arithmetic she can do.
+:::
+
+## You Try 5 — Sums of squares in R
+
+```{r}
+#| label: you-try-5
+#| eval: false
+yhat <- fitted(reg) # the line's predictions
+uhat <- resid(reg) # the misses
+
+c(sum_u = sum(uhat), sum_xu = sum(x * uhat)) # the two OLS facts
+
+TSS <- sum((y - mean(y))^2)
+ESS <- sum((____ - mean(y))^2)
+SSR <- sum(____^2)
+c(TSS = TSS, ESS_plus_SSR = ESS + SSR) # should be equal
+
+R2 <- ____ / ____
+SER <- sqrt(____ / (length(y) - ____))
+c(R2 = R2, SER = SER)
+
+summary(reg) # find R2 and SER in the output
+anova(reg) # find ESS and SSR in the output
+```
+
+::: {.notes}
+Eight minutes. Then put summary(reg) and anova(reg) on screen side by side
+and have her POINT to each number she computed. Pointing is the skill. The
+homework asks her to fill in these exact two printouts.
+
+sum_u and sum_xu will print as numbers like 1e-12. That is zero, up to
+floating-point rounding. Worth thirty seconds: computers store decimals
+imperfectly.
+:::
+
+## Solution 5
+
+::: {.columns}
+::: {.column width="44%"}
+```{r}
+#| label: you-try-5-soln
+yhat <- fitted(reg)
+uhat <- resid(reg)
+TSS <- sum((y - mean(y))^2)
+ESS <- sum((yhat - mean(y))^2)
+SSR <- sum(uhat^2)
+R2 <- ESS / TSS
+SER <- sqrt(SSR / (length(y) - 2))
+round(c(TSS = TSS, ESS = ESS, SSR = SSR, R2 = R2, SER = SER), 3)
+```
+:::
+::: {.column width="54%"}
+```{r}
+#| label: anova-5
+anova(reg)
+```
+
+- `fico` row, `Sum Sq` = **ESS**
+- `Residuals` row, `Sum Sq` = **SSR**
+- $TSS$ = the two added together
+- `Residuals` `Mean Sq` $= SSR/(n-2) = SER^2$
+:::
+:::
+
+::: {.notes}
+The Mean Sq for Residuals is SER squared. Have her take the square root of
+it and find the "Residual standard error" line in summary(). Same number.
+
+Leave the F value column alone today. It is Tuesday's material; say "we'll
+come back for that column."
+:::
+
+## You Try 6 — Make the slope bounce
+
+The Std. Error claims to measure how much $\hat\beta_1$ moves from sample to
+sample. **Test that claim.** Draw 1,000 new portfolios from the same truth,
+and re-estimate the slope each time.
+
+```{r}
+#| label: you-try-6
+#| eval: false
+set.seed(300)
+slopes <- replicate(1000, {
+  fico <- round(pmin(pmax(rnorm(500, 690, 50), 560), 830))
+  util <- pmin(pmax(160 - 0.15 * fico + rnorm(500, 0, 12), 0), 100)
+  coef(lm(util ~ fico))[____] # which element is the slope?
+})
+
+c(mean_of_slopes = mean(____), sd_of_slopes = sd(____))
+coef(summary(reg))["fico", "Std. Error"] # what ONE sample estimated
+hist(slopes, breaks = 40)
+```
+
+**(a)** Is the average slope close to $-0.15$? **(b)** Is the SD of the
+slopes close to the Std. Error from our one sample?
+
+::: {.notes}
+Ten minutes. This is the payoff of the day, and it is Day 4's You Try 3
+with a slope in place of a mean.
+
+(a) yes: OLS is unbiased under the assumptions (S&W §4.4-4.5). (b) yes:
+the SE, computed from ONE sample, predicts the spread across a thousand
+samples we never see. That is what a standard error is for.
+
+The histogram will be bell-shaped. Ask why. Answer: the CLT, applied to
+the slope.
+:::
+
+## Solution 6
+
+```{r}
+#| label: you-try-6-soln
+#| fig-width: 8
+#| fig-height: 2.8
+#| fig-align: center
+set.seed(300)
+slopes <- replicate(1000, {
+  fico <- round(pmin(pmax(rnorm(500, 690, 50), 560), 830))
+  util <- pmin(pmax(160 - 0.15 * fico + rnorm(500, 0, 12), 0), 100)
+  coef(lm(util ~ fico))[2]
+})
+round(
+  c(
+    mean = mean(slopes),
+    sd = sd(slopes),
+    one_sample_SE = coef(summary(reg))["fico", "Std. Error"]
+  ),
+  4
+)
+ggplot(tibble(slopes), aes(slopes)) +
+  geom_histogram(bins = 40, fill = "steelblue", colour = "white") +
+  geom_vline(xintercept = -0.15, linewidth = 1) +
+  theme_minimal(base_size = 13)
+```
+
+::: {.notes}
+Two numbers to point at: the SD of 1,000 slopes and the SE from one sample.
+They agree to about two decimal places. Say: "When you read Std. Error in a
+table, you are reading this histogram's width, estimated from one dataset."
+
+Bell shape plus a known width is all Tuesday's t-test needs.
+:::
+
+## The top half of a regression table
+
+```{r}
+#| label: coef-table
+coef(summary(reg))
+```
+
+| Column | Symbol | Formula | Today? |
+|---|---|---|---|
+| Estimate | $\hat\beta_j$ | $S_{xy}/S_{xx}$; $\;\bar Y - \hat\beta_1 \bar X$ | ✓ |
+| Std. Error | $SE(\hat\beta_j)$ | $SER/\sqrt{S_{xx}}$ for the slope | ✓ |
+| t value | $t$ | $\hat\beta_j / SE(\hat\beta_j)$ | **Tuesday** |
+| Pr(>\|t\|) | $p$ | area in the $t$ tails | **Tuesday** |
+
+::: {.notes}
+Ask her to read the fico row out loud as a sentence: "Each extra FICO point
+is associated with about 0.14 points lower utilization, and that estimate
+would typically move by about 0.011 from sample to sample."
+
+Then ask: 0.14 is about thirteen of those 0.011s away from zero. Is that a
+lot? Let her answer, and tell her Tuesday makes that question precise.
+:::
+
+## Day 5 on one page
+
+| Idea | What it says | Formula |
+|---|---|---|
+| Linear model | outcome = line + error | $Y_i = \beta_0 + \beta_1 X_i + u_i$ |
+| OLS | the line with the smallest squared misses | $\min \sum \hat u_i^2$ |
+| Slope | covariance over variance | $\hat\beta_1 = S_{xy}/S_{xx}$ |
+| Intercept | line passes through the means | $\hat\beta_0 = \bar Y - \hat\beta_1 \bar X$ |
+| OLS facts | residuals sum to 0, uncorrelated with $X$ | $\sum \hat u_i = 0,\ \sum X_i \hat u_i = 0$ |
+| Sums of squares | variation splits exactly | $TSS = ESS + SSR$ |
+| $R^2$ | share explained | $ESS/TSS$ |
+| SER | typical miss, in $Y$ units | $\sqrt{SSR/(n-2)}$ |
+| $SE(\hat\beta_1)$ | how much the slope bounces | $SER/\sqrt{S_{xx}}$ |
+
+::: {.callout-note appearance="minimal"}
+**Assigned:** Classwork 3-1. Questions 1–2 use only today's material. Do them
+before Tuesday. **Tuesday:** t-tests, p-values, and the F-test, on JPMorgan
+loss data.
+:::
+
+::: {.notes}
+Assign Classwork 3-1 now. Questions 1-2 are You Try 2 and 3 with ten
+accounts instead of five. Tell her that, because it changes how a long
+sheet looks.
+
+She presents her homework on Thursday 11/12. Mention it now so she knows
+her work will be shown, not just handed in.
+:::
+
+# Appendix: the same thing in Python {visibility="uncounted"}
+
+::: {.notes}
+NOT part of the count. Do not present. Assign as reading, or use if the code
+hour runs short.
+:::
+
+## OLS and sums of squares in Python {visibility="uncounted"}
+
+```python
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+rng = np.random.default_rng(1105)
+fico = np.clip(np.round(rng.normal(690, 50, 500)), 560, 830)
+util = np.clip(160 - 0.15 * fico + rng.normal(0, 12, 500), 0, 100).round(1)
+cards = pd.DataFrame({"fico": fico, "util": util})
+
+# by hand
+x, y = cards.fico, cards.util
+b1 = ((x - x.mean()) * (y - y.mean())).sum() / ((x - x.mean())**2).sum()
+b0 = y.mean() - b1 * x.mean()
+
+# by statsmodels (the R lm() equivalent)
+reg = smf.ols("util ~ fico", data=cards).fit()
+reg.params            # b0, b1
+reg.ess, reg.ssr      # ESS and SSR -- statsmodels uses the S&W names
+reg.rsquared          # R^2
+np.sqrt(reg.mse_resid)  # SER
+reg.bse               # standard errors
+```
+
+::: {.callout-warning appearance="minimal"}
+Python's random numbers differ from R's even with the same seed, so the
+estimates will be close to the R ones but not identical.
+:::

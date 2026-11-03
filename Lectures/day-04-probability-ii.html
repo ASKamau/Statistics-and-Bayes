@@ -1,0 +1,1772 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="day-04-probability-ii_files/libs/clipboard/clipboard.min.js"></script>
+<script src="day-04-probability-ii_files/libs/quarto-html/tabby.min.js"></script>
+<script src="day-04-probability-ii_files/libs/quarto-html/popper.min.js"></script>
+<script src="day-04-probability-ii_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="day-04-probability-ii_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="day-04-probability-ii_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="day-04-probability-ii_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.10.18">
+
+  <meta name="author" content="Ari Kamau">
+  <meta name="dcterms.date" content="2026-09-24">
+  <title>Day 4 — The Named Distributions, and Why Averages Behave</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="day-04-probability-ii_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="day-04-probability-ii_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="day-04-probability-ii_files/libs/revealjs/dist/theme/quarto-2740581606dc327e82f18f789b69d8a0.css">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/reveal-chalkboard/font-awesome/css/all.css" rel="stylesheet">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/reveal-chalkboard/style.css" rel="stylesheet">
+  <link href="day-04-probability-ii_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Day 4 — The Named Distributions, and Why Averages Behave</h1>
+  <p class="subtitle">ECON 300 · Applied Statistics for Economists</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Ari Kamau
+</div>
+</div>
+</div>
+
+  <p class="date">2026-09-24</p>
+</section>
+<section class="slide level2">
+
+<aside class="notes">
+<p>MASTER DECK. Every “You Try” slide is followed immediately by its solution slide. Present straight through; advance one slide to reveal the answer.</p>
+<p>Press S for speaker notes, B for the chalkboard, ESC for the overview.</p>
+<p>25 teaching slides. The Python appendix after slide 25 is not part of the count.</p>
+<p>TIMING — this deck back-loads. The payoff is slides 21-25 and you must arrive there with thirty minutes left. 0-10 News article 10-25 Greek round two, d/p/q/r family (slides 2-6) 25-50 Normal distribution, standardizing, You Try 2 (slides 7-10) 50-60 chi-squared, t, F, the summary table (slides 11-14) — FAST. Catalogue, not theory. 60-65 Break 65-90 Random sampling through You Try 3 (slides 15-20) 90-120 LLN, CLT, You Try 4, wrap (slides 21-25)</p>
+<p>IF YOU FALL BEHIND: compress slides 11-13 onto slide 14’s table and say the three distributions are catalogued, not derived — we meet them again when we need them. Do NOT cut You Try 3 or the CLT simulation. Those two are the entire point of the day.</p>
+<p>SOURCE: Stock &amp; Watson, Introduction to Econometrics, Ch. 2.4-2.6.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="this-morning" class="slide level2">
+<h2>This morning</h2>
+<p><strong>Hour 1 · Theory</strong></p>
+<ul>
+<li>The four distributions with names: normal, <span class="math inline">\(\chi^2\)</span>, <span class="math inline">\(t\)</span>, <span class="math inline">\(F\)</span></li>
+<li>Standardizing: turning any normal into <em>the</em> normal</li>
+<li>Random sampling, i.i.d., and <span class="math inline">\(\bar{Y}\)</span> as a random variable</li>
+<li>The Law of Large Numbers and the Central Limit Theorem</li>
+</ul>
+<p><strong>Hour 2 · Code</strong></p>
+<ul>
+<li><code>dnorm</code> / <code>pnorm</code> / <code>qnorm</code> / <code>rnorm</code> — the four questions</li>
+<li>Simulating a sampling distribution, and watching the CLT happen</li>
+</ul>
+<p><strong>Reading:</strong> Stock &amp; Watson §2.4–2.6 · <strong>Due Monday 9/28:</strong> Classwork 2-1</p>
+<aside class="notes">
+<p>Frame the day in one sentence: Tuesday was about what a distribution is; today is about which ones actually show up, and why the same bell curve keeps appearing no matter what you started with.</p>
+<p>The CLT is the most surprising theorem he will meet this term. Do not spoil it on slide 1 — just promise it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="greek-round-two" class="slide level2">
+<h2>Greek, round two</h2>
+<p>Tuesday’s letters plus the ones that show up in distribution theory:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Letter</th>
+<th>Name</th>
+<th>What it means here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\Phi\)</span></td>
+<td>capital Phi</td>
+<td>the <strong>standard normal CDF</strong> — <span class="math inline">\(\Phi(z) = P(Z \le z)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\phi\)</span></td>
+<td>lowercase phi</td>
+<td>the standard normal <strong>PDF</strong> (the curve itself)</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\chi^2\)</span></td>
+<td>chi-squared</td>
+<td>a distribution built from <strong>squared</strong> normals</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\nu\)</span></td>
+<td>nu</td>
+<td><strong>degrees of freedom</strong> — how many free pieces of information</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\alpha\)</span></td>
+<td>alpha</td>
+<td><strong>significance level</strong> — the error rate we accept</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\mu,\ \sigma^2,\ \rho\)</span></td>
+<td></td>
+<td>from Tuesday: mean, variance, correlation</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>And one Latin letter doing Greek work: <strong><span class="math inline">\(Z\)</span></strong> always means a standardized variable — mean 0, standard deviation 1.</p>
+<aside class="notes">
+<p>“Chi” rhymes with “sky,” not “chee.” “Nu” like “new.” Capital Phi is “fye” (or “fee” — both are said, do not make it a thing).</p>
+<p>The Phi/phi distinction is worth thirty seconds because both appear on the same page of Stock &amp; Watson and they are different objects: little phi is the curve, big Phi is the running area under it. He will meet them as dnorm and pnorm in four slides.</p>
+<p>Degrees of freedom: he met this on Tuesday as n-1 in the variance. Same idea, new symbol. Remind him rather than re-explaining.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="where-we-are" class="slide level2">
+<h2>Where we are</h2>
+<p>Tuesday: a distribution is a complete description of a random variable — every value and its probability, summarized by <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma^2\)</span>.</p>
+<div class="fragment">
+<p><strong>The gap we have not crossed:</strong></p>
+<div class="columns">
+<div class="column" style="width:48%;">
+<p><strong>What we can describe</strong></p>
+<p><span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma^2\)</span>, <span class="math inline">\(\rho\)</span> — the truth about a population</p>
+<p>Requires knowing the whole population</p>
+</div><div class="column" style="width:48%;">
+<p><strong>What we can compute</strong></p>
+<p><span class="math inline">\(\bar{x}\)</span>, <span class="math inline">\(s^2\)</span>, <span class="math inline">\(r\)</span> — from <span class="math inline">\(n\)</span> observations</p>
+<p>One sample, and the wrong one</p>
+</div></div>
+</div>
+<div class="fragment">
+<p>Today builds the bridge. The key move: <strong><span class="math inline">\(\bar{Y}\)</span> is itself a random variable, with its own distribution.</strong></p>
+<aside class="notes">
+<p>This slide is the hinge of the whole course and it is easy to present as throat-clearing. Do not.</p>
+<p>Chalkboard (B): draw the population box and the sample box from Tuesday. Then draw THREE sample boxes, each giving a different x-bar. Write those three numbers down. Then circle them and say: those numbers are themselves a dataset. They have a mean. They have a spread. That distribution is the object we study today, and it is what makes inference possible.</p>
+<p>He will find “x-bar has a distribution” genuinely strange. Sit in the strangeness for a minute; it is the correct reaction and rushing past it is how students end up unable to explain a standard error three years later.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="code-foundation-the-dpqr-family" class="slide level2">
+<h2>Code foundation: the d/p/q/r family</h2>
+<p>Every distribution in R comes with four functions. The suffix names the distribution; the prefix names the <strong>question</strong>.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Prefix</th>
+<th>Question</th>
+<th>For the normal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>d</code></td>
+<td><em>How tall is the curve here?</em> (density)</td>
+<td><code>dnorm(x, mean, sd)</code></td>
+</tr>
+<tr class="even">
+<td><code>p</code></td>
+<td><em>How much area is to the LEFT?</em> (probability)</td>
+<td><code>pnorm(q, mean, sd)</code></td>
+</tr>
+<tr class="odd">
+<td><code>q</code></td>
+<td><em>What value has this much area to its left?</em> (quantile)</td>
+<td><code>qnorm(p, mean, sd)</code></td>
+</tr>
+<tr class="even">
+<td><code>r</code></td>
+<td><em>Give me random draws.</em></td>
+<td><code>rnorm(n, mean, sd)</code></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="fl">1.96</span>) <span class="co"># area left of 1.96 on a standard normal</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.9750021</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fl">0.975</span>) <span class="co"># the value with 97.5% of area to its left</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.959964</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">5</span>, <span class="dv">64</span>, <span class="dv">15</span>), <span class="dv">1</span>) <span class="co"># 5 draws from N(64, 15^2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 84.6 76.9 71.1 74.5 62.7</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p><code>p</code> and <code>q</code> are inverses of each other and that is the fact to nail. pnorm takes a value and returns a probability; qnorm takes a probability and returns a value. pnorm(qnorm(0.3)) = 0.3.</p>
+<p>Same four prefixes work for every distribution in R: pt, qt, rt, dt for the t; pchisq, qchisq for chi-squared; pbinom, rbinom for the binomial. Learn the pattern once, get every distribution free. Say that explicitly — it saves him memorizing forty function names.</p>
+<p>pnorm(1.96) = 0.975 is going to be the most-used number of his statistical life. Point at it now.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="you-try-1-which-function" class="slide level2">
+<h2>You Try 1 — Which function?</h2>
+<p>Tract median income is <span class="math inline">\(Y \sim N(64, 15^2)\)</span>, in thousands.</p>
+<p>Match each question to the R call that answers it. Do not compute yet.</p>
+<div class="columns">
+<div class="column" style="width:52%;">
+<p><strong>(a)</strong> What fraction of tracts are below $49k?</p>
+<p><strong>(b)</strong> What income is at the 90th percentile?</p>
+<p><strong>(c)</strong> Simulate 500 tracts.</p>
+<p><strong>(d)</strong> What fraction fall between $49k and $79k?</p>
+</div><div class="column" style="width:44%;">
+<p><code>rnorm(500, 64, 15)</code></p>
+<p><code>qnorm(0.90, 64, 15)</code></p>
+<p><code>pnorm(49, 64, 15)</code></p>
+<p><code>pnorm(79, 64, 15) - pnorm(49, 64, 15)</code></p>
+</div></div>
+<aside class="notes">
+<p>Three minutes, and it is a warm-up, not a test.</p>
+<ol start="4" type="a">
+<li>is the one that requires thought: there is no “area between” function, so you subtract two left-areas. Draw it on the board — big area minus small area leaves the middle strip. This trick is used on every normal problem forever.</li>
+</ol>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="solution-1" class="slide level2">
+<h2>Solution 1</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="dv">49</span>, <span class="dv">64</span>, <span class="dv">15</span>) <span class="co"># (a) below $49k</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1586553</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fl">0.90</span>, <span class="dv">64</span>, <span class="dv">15</span>) <span class="co"># (b) 90th percentile</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 83.22327</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">pnorm</span>(<span class="dv">79</span>, <span class="dv">64</span>, <span class="dv">15</span>) <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="dv">49</span>, <span class="dv">64</span>, <span class="dv">15</span>) <span class="co"># (d) between</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6826895</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">500</span>, <span class="dv">64</span>, <span class="dv">15</span>), <span class="dv">1</span>), <span class="dv">8</span>) <span class="co"># (c) first 8 of 500 draws</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 87.5 76.3 69.9 82.2 69.3 97.2 62.6 44.3</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><strong>(a)</strong> 15.9% — about one tract in six. <strong>(b)</strong> $83.2k. <strong>(d)</strong> 68.3% — and that number is not a coincidence. Next slide.</p>
+<aside class="notes">
+<p>Land the 0.683. He should feel it as suspicious before you explain it. 49 and 79 are exactly one standard deviation either side of 64, and the answer came out at the number everyone half-remembers from high school.</p>
+<p>That is the 68-95-99.7 rule and it is slide 9. Do not explain it yet — let the number hang for ten seconds.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-normal-distribution" class="slide level2">
+<h2>§2.4 — The normal distribution</h2>
+<p><span class="math display">\[
+Y \sim N(\mu,\ \sigma^2)
+\]</span></p>
+<p>Read: “<span class="math inline">\(Y\)</span> is distributed normal with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>.”</p>
+<div class="fragment">
+<p>Two parameters and nothing else. <span class="math inline">\(\mu\)</span> slides the curve left and right; <span class="math inline">\(\sigma\)</span> makes it fat or thin. That is the entire family.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="day-04-probability-ii_files/figure-revealjs/normal-family-1.png" class="quarto-figure quarto-figure-center" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Symmetric, unimodal, tails that never quite touch zero. Mean = median = mode.</p>
+<p>The honest caveat, and say it today rather than letting him discover it in a referee report: income is NOT normal. It is right-skewed with a long upper tail. Nothing in economics that is bounded below by zero is normal.</p>
+<p>So why does the normal dominate the subject? Not because data are normal. Because AVERAGES are, and averages are what we estimate. That is the CLT, it is slide 22, and it is the answer to the objection he is about to raise.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="standardizing-one-curve-to-rule-them-all" class="slide level2">
+<h2>Standardizing: one curve to rule them all</h2>
+<p>Any normal becomes <strong>the</strong> standard normal by subtracting the mean and dividing by the standard deviation:</p>
+<p><span class="math display">\[
+Z = \frac{Y - \mu}{\sigma} \sim N(0, 1)
+\]</span></p>
+<div class="fragment">
+<p><span class="math inline">\(Z\)</span> answers: <strong>how many standard deviations from the mean is this?</strong></p>
+<p><span class="math display">\[
+P(Y \le 49) = P\!\left(Z \le \frac{49 - 64}{15}\right) = P(Z \le -1) = \Phi(-1) = 0.159
+\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>The 68–95–99.7 rule</strong> — memorize this, it is your sanity check forever:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Within</th>
+<th>of the mean</th>
+<th>Contains</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(\pm 1\sigma\)</span></td>
+<td></td>
+<td><strong>68%</strong></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\pm 2\sigma\)</span></td>
+<td></td>
+<td><strong>95%</strong></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\pm 3\sigma\)</span></td>
+<td></td>
+<td><strong>99.7%</strong></td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>Standardizing is exactly the linear transformation from Tuesday’s slide 20: a = -mu/sigma, b = 1/sigma. So E(Z) = 0 and var(Z) = (1/sigma<sup>2)(sigma</sup>2) = 1. Do that on the board — it closes the loop and it is only two lines.</p>
+<p>Before computers you HAD to standardize, because the back of the book had one table and it was for N(0,1). Now pnorm takes mean and sd directly. Standardizing survives anyway because z is interpretable: “2.3 standard deviations out” means something in any units, and “$83,000” does not.</p>
+<p>The 68-95-99.7 rule is how he catches his own errors. If R says a value one sigma out has 3% below it, R did not make a mistake — he typed something wrong.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="you-try-2-normal-probabilities-by-hand-then-in-code" class="slide level2">
+<h2>You Try 2 — Normal probabilities by hand, then in code</h2>
+<p><span class="math inline">\(Y \sim N(64, 15^2)\)</span>, tract median income in thousands.</p>
+<p><strong>(a)</strong> Standardize $79k and $94k. Report both <span class="math inline">\(z\)</span> values.</p>
+<p><strong>(b)</strong> Using <strong>only</strong> the 68–95–99.7 rule and symmetry, find <span class="math inline">\(P(Y &gt; 94)\)</span>. No calculator.</p>
+<p><strong>(c)</strong> Again using only the rule, find <span class="math inline">\(P(49 &lt; Y &lt; 94)\)</span>.</p>
+<p><strong>(d)</strong> Now verify (b) and (c) with <code>pnorm()</code>.</p>
+<p><strong>(e)</strong> A tract at $82k — how many standard deviations above average, and roughly what percentile?</p>
+<aside class="notes">
+<p>Eight minutes. The point of (b) and (c) is that he can do real normal calculations with no table and no computer, and that skill is what lets him smell a wrong answer.</p>
+<p>(b): 94 is two sigma above. 95% is within two sigma, so 5% is outside, split evenly between the tails by symmetry. 2.5% above. The exact answer is 2.28% and the rule got him to the right order of magnitude in ten seconds.</p>
+<p>(c): from -1 sigma to +2 sigma. Half of the 68% band plus half of the 95% band: 34 + 47.5 = 81.5%. Exact is 81.9%.</p>
+<ol start="5" type="a">
+<li>z = 1.2, which is between the 68% and 95% marks, so somewhere around the 88th percentile. Exact is 88.5%.</li>
+</ol>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="solution-2" class="slide level2">
+<h2>Solution 2</h2>
+<p><strong>(a)</strong> <span class="math inline">\(z_{79} = \dfrac{79-64}{15} = 1.0\)</span>, <span class="math inline">\(\qquad z_{94} = \dfrac{94-64}{15} = 2.0\)</span></p>
+<p><strong>(b)</strong> 95% lies within <span class="math inline">\(\pm 2\sigma\)</span> <span class="math inline">\(\Rightarrow\)</span> 5% outside <span class="math inline">\(\Rightarrow\)</span> by symmetry <strong>2.5% above</strong>. (Exact: 2.28%)</p>
+<p><strong>(c)</strong> From <span class="math inline">\(-1\sigma\)</span> to <span class="math inline">\(+2\sigma\)</span> = half of 68% + half of 95% <span class="math inline">\(= 34\% + 47.5\% = \mathbf{81.5\%}\)</span>. (Exact: 81.9%)</p>
+<p><strong>(e)</strong> <span class="math inline">\(z = (82-64)/15 = 1.2\)</span> — 1.2 SDs above the mean, about the <strong>88th percentile</strong>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb15-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">b =</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="dv">94</span>, <span class="dv">64</span>, <span class="dv">15</span>),</span>
+<span id="cb15-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">c =</span> <span class="fu">pnorm</span>(<span class="dv">94</span>, <span class="dv">64</span>, <span class="dv">15</span>) <span class="sc">-</span> <span class="fu">pnorm</span>(<span class="dv">49</span>, <span class="dv">64</span>, <span class="dv">15</span>),</span>
+<span id="cb15-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">e =</span> <span class="fu">pnorm</span>(<span class="dv">82</span>, <span class="dv">64</span>, <span class="dv">15</span>)</span>
+<span id="cb15-5"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         b          c          e 
+0.02275013 0.81859461 0.88493033 </code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>The rule got him within half a percentage point on every part, by hand, in under a minute. Say that out loud — it is the argument for memorizing it.</p>
+<p>This is also the first time he has produced an answer and then checked it against the machine and been right. That is the loop the whole course runs on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-chi2-distribution" class="slide level2">
+<h2>The <span class="math inline">\(\chi^2\)</span> distribution</h2>
+<p>Take <span class="math inline">\(m\)</span> independent standard normals. Square them. Add them up.</p>
+<p><span class="math display">\[
+W = Z_1^2 + Z_2^2 + \cdots + Z_m^2 \;\sim\; \chi^2_m
+\]</span></p>
+<div class="fragment">
+<ul>
+<li>Never negative — it is a sum of squares</li>
+<li>Right-skewed, and <span class="math inline">\(E(W) = m\)</span></li>
+<li>The single parameter <span class="math inline">\(m\)</span> is the <strong>degrees of freedom</strong></li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Where you meet it:</strong> anything built from a <em>variance</em>. <span class="math inline">\(s^2\)</span> has a <span class="math inline">\(\chi^2\)</span> distribution (scaled). Tests of several restrictions at once.</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="day-04-probability-ii_files/figure-revealjs/chisq-1.png" class="quarto-figure quarto-figure-center" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>FAST. This is a catalogue entry, not a theory. He needs to recognize the name and know it is a sum of squares; everything else waits until he needs it.</p>
+<p>The one thing worth saying: it cannot be negative, which is why it is the natural distribution for a variance. Variances are sums of squares too.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-student-t-distribution" class="slide level2">
+<h2>The Student <span class="math inline">\(t\)</span> distribution</h2>
+<p>A standard normal divided by (the square root of) an independent <span class="math inline">\(\chi^2\)</span> over its degrees of freedom:</p>
+<p><span class="math display">\[
+t_m = \frac{Z}{\sqrt{W/m}}, \qquad W \sim \chi^2_m
+\]</span></p>
+<div class="fragment">
+<p><strong>In plain English:</strong> the normal, but for when you had to <em>estimate</em> <span class="math inline">\(\sigma\)</span> instead of knowing it. Estimating <span class="math inline">\(\sigma\)</span> adds uncertainty, and the <span class="math inline">\(t\)</span> pays for it with <strong>fatter tails</strong>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">10</span>) <span class="co"># small sample: need to go further out</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.228139</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">30</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.042272</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">100</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.983972</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qnorm</span>(<span class="fl">0.975</span>) <span class="co"># the limit</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.959964</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>By <span class="math inline">\(\nu \approx 30\)</span> the <span class="math inline">\(t\)</span> is nearly normal.</strong> This is why “<span class="math inline">\(n &gt; 30\)</span>” is a rule of thumb you will hear repeated — and repeated too confidently.</p>
+<aside class="notes">
+<p>The t is where “1.96 versus 2.04” comes from and it is worth showing the numbers converge on screen — the printout does the teaching by itself.</p>
+<p>Small sample -&gt; you know sigma badly -&gt; you must go further out to be 95% confident. That sentence is the whole distribution.</p>
+<p>The n &gt; 30 folklore: it is about how fast the t approaches the normal, and it gets misapplied to the CLT, which is a different claim with a different answer depending on skewness. Flag the conflation now; slide 23 settles it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-f-distribution" class="slide level2">
+<h2>The <span class="math inline">\(F\)</span> distribution</h2>
+<p>The ratio of two independent <span class="math inline">\(\chi^2\)</span>s, each divided by its own degrees of freedom:</p>
+<p><span class="math display">\[
+F_{m,k} = \frac{W_1/m}{W_2/k}, \qquad W_1 \sim \chi^2_m,\; W_2 \sim \chi^2_k
+\]</span></p>
+<div class="fragment">
+<p><strong>In plain English:</strong> a ratio of two variances. It answers <em>“is this variance big relative to that one?”</em></p>
+<ul>
+<li>Never negative</li>
+<li><strong>Two</strong> degrees-of-freedom parameters — numerator and denominator</li>
+<li>Where you meet it: testing <strong>several coefficients at once</strong> in a regression</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">qf</span>(<span class="fl">0.95</span>, <span class="at">df1 =</span> <span class="dv">3</span>, <span class="at">df2 =</span> <span class="dv">60</span>) <span class="co"># critical value for testing 3 restrictions</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.758078</code></pre>
+</div>
+</div>
+<aside class="notes">
+<p>Catalogue entry. Twenty seconds.</p>
+<p>The only thing he needs to carry away: when you test one thing you get a t, when you test several things at once you get an F. He will meet it properly in the spring and it will make sense then because it will have a job.</p>
+<p>Do not derive anything here. There is nothing he can do with the derivation yet.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="which-distribution-answers-which-question" class="slide level2">
+<h2>Which distribution answers which question</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Distribution</th>
+<th>Built from</th>
+<th>Shows up when you</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Normal</strong> <span class="math inline">\(N(\mu,\sigma^2)\)</span></td>
+<td>—</td>
+<td>ask about a mean, with <span class="math inline">\(\sigma\)</span> <strong>known</strong></td>
+<td><span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma^2\)</span></td>
+</tr>
+<tr class="even">
+<td><strong><span class="math inline">\(\chi^2_m\)</span></strong></td>
+<td>sum of <span class="math inline">\(m\)</span> squared <span class="math inline">\(Z\)</span>s</td>
+<td>ask about a <strong>variance</strong></td>
+<td><span class="math inline">\(m\)</span></td>
+</tr>
+<tr class="odd">
+<td><strong><span class="math inline">\(t_m\)</span></strong></td>
+<td><span class="math inline">\(Z\)</span> over root-<span class="math inline">\(\chi^2\)</span></td>
+<td>ask about a mean, <span class="math inline">\(\sigma\)</span> <strong>estimated</strong></td>
+<td><span class="math inline">\(m\)</span></td>
+</tr>
+<tr class="even">
+<td><strong><span class="math inline">\(F_{m,k}\)</span></strong></td>
+<td>ratio of two <span class="math inline">\(\chi^2\)</span>s</td>
+<td>test <strong>several</strong> things at once</td>
+<td><span class="math inline">\(m\)</span>, <span class="math inline">\(k\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p>All three of the others are built out of normals. That is not an accident — and after the next ten slides it will not even be surprising.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>This table is the slide he photographs. Pause on it.</p>
+<p>The callout is the setup for the CLT. Everything in the theory is built from normals, and the CLT is the reason we are allowed to assume normals in the first place. The logic is circular-looking and is not: the CLT earns the assumption.</p>
+<p>If you are behind schedule, this table plus thirty seconds replaces slides 11-13 entirely.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="random-sampling" class="slide level2">
+<h2>§2.5 — Random sampling</h2>
+<p>We draw <span class="math inline">\(n\)</span> observations <span class="math inline">\(Y_1, Y_2, \ldots, Y_n\)</span> from a population.</p>
+<p><strong>Simple random sampling:</strong> every member equally likely to be drawn, and draws do not influence each other.</p>
+<div class="fragment">
+<p>That gives us <strong>i.i.d.</strong>:</p>
+<ul>
+<li><strong>independent</strong> — one draw tells you nothing about the next</li>
+<li><strong>identically distributed</strong> — every draw comes from the <em>same</em> distribution</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p>i.i.d. is an <strong>assumption about how the data were collected</strong>, not a property you can test after the fact. Time series are not independent. Siblings are not independent. Convenience samples are not identically distributed.</p>
+</div>
+</div>
+</div>
+<p>Before you look, each <span class="math inline">\(Y_i\)</span> is a <strong>random variable</strong>. So any function of them — including <span class="math inline">\(\bar{Y}\)</span> — is a random variable too.</p>
+<aside class="notes">
+<p>The warning is the most practically important thing on this slide. Most bad applied work is an i.i.d. violation that nobody named. Clustered standard errors exist entirely because of it.</p>
+<p>Give one concrete failure: survey one household per block versus survey ten households on the same block. Same n, wildly different information, because neighbors resemble each other. The second sample is smaller than it looks.</p>
+<p>Then the last line, slowly: Y-bar is a function of random variables, so Y-bar is random. Next slide makes that precise.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-sampling-distribution-of-bary" class="slide level2">
+<h2>The sampling distribution of <span class="math inline">\(\bar{Y}\)</span></h2>
+<p><span class="math display">\[
+\bar{Y} = \frac{1}{n}\sum_{i=1}^{n} Y_i
+\]</span></p>
+<p>Draw a different sample, get a different <span class="math inline">\(\bar{Y}\)</span>. Its distribution across all possible samples is the <strong>sampling distribution</strong>.</p>
+<div class="fragment">
+<p>For i.i.d. draws from a population with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>:</p>
+<p><span class="math display">\[
+\boxed{\;E(\bar{Y}) = \mu \qquad\qquad \text{var}(\bar{Y}) = \frac{\sigma^2}{n}
+\qquad\qquad \text{SD}(\bar{Y}) = \frac{\sigma}{\sqrt{n}}\;}
+\]</span></p>
+</div>
+<div class="fragment">
+<ul>
+<li><strong><span class="math inline">\(E(\bar{Y}) = \mu\)</span></strong> — <span class="math inline">\(\bar{Y}\)</span> is right <em>on average</em>. It is <strong>unbiased</strong>.</li>
+<li><strong><span class="math inline">\(\sigma/\sqrt{n}\)</span></strong> — this is the <strong>standard error</strong>. It shrinks with <span class="math inline">\(n\)</span>, but only as <span class="math inline">\(\sqrt{n}\)</span>.</li>
+</ul>
+<aside class="notes">
+<p>Two separate claims and he must not blur them. Unbiased is about the CENTER of the sampling distribution. The standard error is about its WIDTH. A biased estimator can have a tiny standard error and be useless — that is the dartboard from Day 2, and calling back to it makes the connection land.</p>
+<p>The square root is the expensive fact. To halve the standard error you need FOUR times the data. To cut it to a tenth, a hundred times. This is why survey research is expensive and why “just get more data” stops being good advice around n = 10,000.</p>
+<p>Have him compute it: n = 100 to n = 400 buys a halving. Make the number real.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-textvarbary-sigma2n" class="slide level2">
+<h2>Why <span class="math inline">\(\text{var}(\bar{Y}) = \sigma^2/n\)</span></h2>
+<p>Three lines, using Tuesday’s rules:</p>
+<p><span class="math display">\[
+\text{var}(\bar{Y}) = \text{var}\!\left(\frac{1}{n}\sum_{i=1}^n Y_i\right)
+= \frac{1}{n^2}\,\text{var}\!\left(\sum_{i=1}^n Y_i\right)
+\]</span></p>
+<div class="fragment">
+<p>Because the draws are <strong>independent</strong>, the variance of the sum is the sum of the variances:</p>
+<p><span class="math display">\[
+= \frac{1}{n^2}\sum_{i=1}^n \text{var}(Y_i) = \frac{1}{n^2}\cdot n\sigma^2 = \frac{\sigma^2}{n}
+\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-important no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p><strong>Independence is doing all the work in step two.</strong> If the draws are correlated, this line is false and every standard error you compute is wrong — usually too small, so you will be confident about nothing.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Step one is the b^2 rule from Tuesday’s slide 20: the 1/n comes out as 1/n^2. Ask him to name the rule before you say it.</p>
+<p>Step two is the only new fact, and it is worth stating in general: for any X, Y, var(X + Y) = var(X) + var(Y) + 2cov(X, Y). Independence kills the covariance term. Write it on the board — it shows exactly what independence buys us and exactly what breaks without it.</p>
+<p>The callout deserves ten seconds of silence. Positively correlated draws mean the true variance is LARGER than sigma^2/n, so the reported standard error is too small, so the confidence interval is too narrow, so the researcher is overconfident. That failure mode is everywhere in published work.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="exactly-normal-or-approximately-normal" class="slide level2">
+<h2>Exactly normal, or approximately normal</h2>
+<p>Those two results — <span class="math inline">\(E(\bar{Y}) = \mu\)</span> and <span class="math inline">\(\text{var}(\bar{Y}) = \sigma^2/n\)</span> — hold for <strong>any</strong> population. They say nothing about <strong>shape</strong>.</p>
+<div class="fragment">
+<p><strong>Special case.</strong> If the population itself is normal, <span class="math inline">\(Y_i \sim N(\mu, \sigma^2)\)</span>, then for <strong>every</strong> <span class="math inline">\(n\)</span>, even <span class="math inline">\(n = 2\)</span>:</p>
+<p><span class="math display">\[
+\bar{Y} \sim N\!\left(\mu,\ \frac{\sigma^2}{n}\right) \qquad \text{exactly}
+\]</span></p>
+<p>Averaging normals gives you a normal. No approximation, no minimum sample size.</p>
+</div>
+<div class="fragment">
+<p><strong>General case.</strong> The population is <em>not</em> normal — income, denials, counts, almost everything you will ever study. Then the shape of <span class="math inline">\(\bar{Y}\)</span> for small <span class="math inline">\(n\)</span> is whatever it is, and we have no formula for it.</p>
+<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p>So: do we just give up on non-normal populations? That is the question the last three slides of this deck answer.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>The distinction between the exact case and the general case is what makes the CLT feel necessary rather than decorative. Without this slide the CLT sounds like a convenience; with it, he can see the hole it fills.</p>
+<p>Say plainly: the exact result is nearly useless in practice, because populations in economics are not normal. It is on the slide so that he knows the CLT is doing real work and not restating something we already had.</p>
+<p>Then pose the question in the callout and do not answer it. Go to the break, or straight into You Try 3, with it open.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="you-try-3-build-a-sampling-distribution" class="slide level2">
+<h2>You Try 3 — Build a sampling distribution</h2>
+<p>The population: 32% of applications are denied. So <span class="math inline">\(Y_i \sim\)</span> Bernoulli(0.32), <span class="math inline">\(\mu = 0.32\)</span>, <span class="math inline">\(\sigma^2 = (0.32)(0.68) = 0.2176\)</span>.</p>
+<p><strong>(a)</strong> By hand, for <span class="math inline">\(n = 100\)</span>: what are <span class="math inline">\(E(\bar{Y})\)</span> and <span class="math inline">\(\text{SD}(\bar{Y})\)</span>?</p>
+<p><strong>(b)</strong> Complete the code so it draws 10,000 samples of size 100 and records each sample’s mean.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
+<span id="cb27-2"><a href="" aria-hidden="true" tabindex="-1"></a>sample_means <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, {</span>
+<span id="cb27-3"><a href="" aria-hidden="true" tabindex="-1"></a>  one_sample <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="at">n =</span> ____, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> ____)</span>
+<span id="cb27-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(one_sample)</span>
+<span id="cb27-5"><a href="" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mean =</span> ____, <span class="at">sd =</span> ____) <span class="co"># compare to your part (a)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>(c)</strong> Do the simulated numbers match your hand answers? Should they match <em>exactly</em>?</p>
+<aside class="notes">
+<p>Ten minutes. This is the centerpiece of the day.</p>
+<ol type="a">
+<li><p>E = 0.32. SD = sqrt(0.2176/100) = sqrt(0.002176) = 0.0467.</p></li>
+<li><p>is the question that matters. They will be close, not identical — 10,000 replications is itself a sample, so the simulation has its own sampling error. A student who expects an exact match has not understood what a simulation is.</p></li>
+</ol>
+<p>If he finishes early, have him rerun with n = 25 and n = 400 and watch the SD double and halve. That is the sqrt(n) rule made visible.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="solution-3" class="slide level2">
+<h2>Solution 3</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
+<span id="cb28-2"><a href="" aria-hidden="true" tabindex="-1"></a>sample_means <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">10000</span>, <span class="fu">mean</span>(<span class="fu">rbinom</span>(<span class="at">n =</span> <span class="dv">100</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.32</span>)))</span>
+<span id="cb28-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(</span>
+<span id="cb28-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">sim_mean =</span> <span class="fu">mean</span>(sample_means),</span>
+<span id="cb28-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">theory_mean =</span> <span class="fl">0.32</span>,</span>
+<span id="cb28-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">sim_sd =</span> <span class="fu">sd</span>(sample_means),</span>
+<span id="cb28-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">theory_sd =</span> <span class="fu">sqrt</span>(<span class="fl">0.2176</span> <span class="sc">/</span> <span class="dv">100</span>)</span>
+<span id="cb28-9"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   sim_mean theory_mean      sim_sd   theory_sd 
+ 0.31996700  0.32000000  0.04669697  0.04664762 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><strong>(a)</strong> <span class="math inline">\(E(\bar{Y}) = 0.32\)</span>; <span class="math inline">\(\;\text{SD}(\bar{Y}) = \sqrt{0.2176/100} = 0.0467\)</span></p>
+<p><strong>(c)</strong> Close, not exact. 10,000 replications is <em>itself</em> a sample — the simulation has its own sampling error. Raise it to 1,000,000 and the gap shrinks; it never closes.</p>
+<aside class="notes">
+<p>Point at the two pairs of numbers side by side. The formula he derived by hand three slides ago predicted the spread of a simulation to three decimal places. That is what it means for a theorem to be true about the world.</p>
+<p>Then the setup for the next slide: the population here is Bernoulli — it takes exactly two values, 0 and 1. It is about as far from a bell curve as a distribution can get. Ask what shape he expects sample_means to have. Let him guess wrong.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-law-of-large-numbers" class="slide level2">
+<h2>§2.6 — The Law of Large Numbers</h2>
+<p><span class="math display">\[
+\bar{Y} \;\xrightarrow{p}\; \mu \qquad \text{as } n \to \infty
+\]</span></p>
+<p>As the sample grows, <span class="math inline">\(\bar{Y}\)</span> gets arbitrarily close to <span class="math inline">\(\mu\)</span> and <strong>stays</strong> there. The estimator is <strong>consistent</strong>.</p>
+
+<img data-src="day-04-probability-ii_files/figure-revealjs/lln-1.png" class="quarto-figure quarto-figure-center r-stretch" width="864"><aside class="notes">
+<p>This is the formal version of the intuition he has had since slide 13 of Tuesday: more data, better estimate. Now it has a name and a guarantee.</p>
+<p>Read the plot with him. At n = 10 the running mean is all over the place. By n = 1000 it is pinned. The convergence is fast at first and then agonizingly slow — that is sqrt(n) again, visible.</p>
+<p>THE GAMBLER’S FALLACY, and it is worth the detour: the LLN does NOT say a run of approvals makes a denial “due.” Each draw is independent. What happens is that early deviations get DILUTED by later draws, not corrected by them. The numerator never gets fixed; the denominator just grows. Say it in exactly those words.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-central-limit-theorem" class="slide level2">
+<h2>The Central Limit Theorem</h2>
+<p><span class="math display">\[
+\frac{\bar{Y} - \mu}{\sigma/\sqrt{n}} \;\xrightarrow{d}\; N(0,1)
+\qquad \text{as } n \to \infty
+\]</span></p>
+<div class="fragment">
+<p><strong>For large enough <span class="math inline">\(n\)</span>, <span class="math inline">\(\bar{Y}\)</span> is approximately normal — no matter what the population distribution looks like.</strong></p>
+<p>Skewed. Bimodal. Binary. Doesn’t matter.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>This is why the normal distribution is everywhere in statistics. Not because data are normal — almost nothing is. Because <strong>averages</strong> are, and averages are what we estimate.</p>
+</div>
+</div>
+</div>
+<p><strong>How large is “large enough”?</strong> <span class="math inline">\(n \approx 30\)</span> for a symmetric population. Much larger for a badly skewed one. It is not a fixed number, whatever you have been told.</p>
+<aside class="notes">
+<p>Slow down. This is the theorem.</p>
+<p>Say the strange part out loud: you can know nothing about the population’s shape — you do not need to know it, you do not need to be able to draw it — and you still know the shape of the distribution of its average. Information appears from nowhere. It is the closest thing to magic in the subject and he should feel that.</p>
+<p>Then the practical consequence, which is what he will actually use: this is why we can build a confidence interval around a mean without knowing the population. Everything in the second half of the course rests on this slide.</p>
+<p>The n &gt; 30 rule: for the Bernoulli(0.32) in You Try 3, n = 100 is plenty. For a Bernoulli(0.01) it is nowhere near enough — you would expect one success per sample. Skewness is what determines the answer.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="you-try-4-watch-the-clt-happen" class="slide level2">
+<h2>You Try 4 — Watch the CLT happen</h2>
+<p>The population is <strong>Bernoulli(0.32)</strong> — two values, 0 and 1. As non-normal as it gets.</p>
+<p>Run this and look at the four panels.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">300</span>)</span>
+<span id="cb30-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="" aria-hidden="true" tabindex="-1"></a>clt_draw <span class="ot">&lt;-</span> <span class="cf">function</span>(n) {</span>
+<span id="cb30-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tibble</span>(<span class="at">n =</span> <span class="fu">paste</span>(<span class="st">"n ="</span>, n), <span class="at">ybar =</span> <span class="fu">replicate</span>(<span class="dv">4000</span>, <span class="fu">mean</span>(<span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="fl">0.32</span>))))</span>
+<span id="cb30-5"><a href="" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">map_dfr</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">30</span>, <span class="dv">200</span>), clt_draw) <span class="sc">|&gt;</span></span>
+<span id="cb30-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">n =</span> <span class="fu">fct_inorder</span>(n)) <span class="sc">|&gt;</span></span>
+<span id="cb30-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(ybar)) <span class="sc">+</span></span>
+<span id="cb30-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb30-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>n, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb30-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="fu">expression</span>(<span class="fu">bar</span>(Y)), <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb30-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">12</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>(a)</strong> Describe the <span class="math inline">\(n=1\)</span> panel. Why does it look like that? <strong>(b)</strong> At what <span class="math inline">\(n\)</span> does it start looking normal? <strong>(c)</strong> The panels get <em>narrower</em> as <span class="math inline">\(n\)</span> grows. Which result is that?</p>
+<aside class="notes">
+<p>Eight minutes. Make him actually run it and actually look.</p>
+<ol type="a">
+<li><p>n = 1 is just the population itself — two spikes at 0 and 1, heights 0.68 and 0.32. The mean of one observation IS the observation.</p></li>
+<li><p>n = 5 is lumpy (only six possible values: 0, .2, .4, .6, .8, 1). n = 30 is recognizably bell-shaped. n = 200 is clean.</p></li>
+<li><p>Narrowing is the LLN and the sigma/sqrt(n) formula. The CLT is about SHAPE; the LLN is about LOCATION and the standard error is about WIDTH. Three distinct claims visible in one picture. Make him name which is which — that is the check on whether the last three slides landed.</p></li>
+</ol>
+<p>NOTE: scales = “free” is doing real work here. Without it the n = 1 panel flattens everything else. Point that out; it is also a lesson about honest plots.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="solution-4-and-what-this-buys-you" class="slide level2">
+<h2>Solution 4 — and what this buys you</h2>
+<p><strong>(a)</strong> Two spikes, at 0 and 1. With <span class="math inline">\(n=1\)</span> the “sample mean” is just the single observation, so the panel <em>is</em> the population distribution.</p>
+<p><strong>(b)</strong> <span class="math inline">\(n = 5\)</span> is lumpy — only six values are possible. By <span class="math inline">\(n = 30\)</span> it is recognizably a bell. At <span class="math inline">\(n = 200\)</span> it is clean.</p>
+<p><strong>(c)</strong> Narrowing is the <strong>LLN</strong> and <span class="math inline">\(\sigma/\sqrt{n}\)</span>. The CLT governs the <strong>shape</strong>; the standard error governs the <strong>width</strong>. Two different theorems in one picture.</p>
+<aside class="notes">
+<p>Make him name which panel feature belongs to which theorem before you advance. That is the check on whether the last three slides landed.</p>
+<p>If he gets (c) backwards — calling the narrowing “the CLT” — that is the single most common confusion in this chapter and it is worth two extra minutes now.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="chapter-2-on-one-page" class="slide level2">
+<h2>Chapter 2 on one page</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Result</th>
+<th>What it says</th>
+<th>Why you care</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(E(Y) = \sum y_i p_i\)</span></td>
+<td>the long-run average</td>
+<td>what a parameter <em>is</em></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(\text{var}(Y) = E(Y^2) - \mu^2\)</span></td>
+<td>spread, squared units</td>
+<td>the shortcut you’ll use daily</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\rho = \sigma_{XY}/\sigma_X\sigma_Y\)</span></td>
+<td>unit-free co-movement</td>
+<td>but only <strong>linear</strong>, and never causal</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(E(\bar{Y}) = \mu\)</span></td>
+<td><span class="math inline">\(\bar{Y}\)</span> is <strong>unbiased</strong></td>
+<td>the center is right</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(\text{SD}(\bar{Y}) = \sigma/\sqrt{n}\)</span></td>
+<td>the <strong>standard error</strong></td>
+<td>four times the data halves it</td>
+</tr>
+<tr class="even">
+<td><strong>LLN</strong></td>
+<td><span class="math inline">\(\bar{Y} \to \mu\)</span></td>
+<td>the estimate is <strong>consistent</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>CLT</strong></td>
+<td><span class="math inline">\(\bar{Y}\)</span> becomes <strong>normal</strong></td>
+<td>why we can do inference at all</td>
+</tr>
+</tbody>
+</table>
+<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p><strong>What you can now do:</strong> take one sample, compute <span class="math inline">\(\bar{Y}\)</span> and <span class="math inline">\(s\)</span>, and say something quantified about a <span class="math inline">\(\mu\)</span> you will never observe.</p>
+<p><strong>Next week:</strong> estimation, confidence intervals, hypothesis tests — all of which are this table, applied. · <strong>Due Monday 9/28:</strong> Classwork 2-1.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Closing line, and say it as the closing line: two days ago x-bar was a number you computed. Today it is a random variable whose distribution you can write down exactly. That shift is the whole subject.</p>
+<p>Assign Classwork 2-1. It uses Tuesday’s joint table for Parts 1-4 and this morning’s normal and sampling results for Parts 5-6, so nothing on it is new material. Tell him that — it changes how he approaches a sheet that looks long.</p>
+<p>Last two rows of the table are the ones to leave on screen while he packs up.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section>
+<section id="appendix-the-same-thing-in-python" class="title-slide slide level1 center" data-visibility="uncounted">
+<h1>Appendix — the same thing in Python</h1>
+<aside class="notes">
+<p>NOT part of the 25. Do not present. Assign as reading, or use if the code hour runs short.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
+<section id="the-dpqr-family-in-python" class="slide level2" data-visibility="uncounted">
+<h2>The d/p/q/r family in Python</h2>
+<p>R’s four prefixes become four <strong>methods</strong> on a frozen distribution object:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb31-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> stats</span>
+<span id="cb31-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="" aria-hidden="true" tabindex="-1"></a>Y <span class="op">=</span> stats.norm(loc<span class="op">=</span><span class="dv">64</span>, scale<span class="op">=</span><span class="dv">15</span>)      <span class="co"># N(64, 15^2)</span></span>
+<span id="cb31-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="" aria-hidden="true" tabindex="-1"></a>Y.pdf(<span class="dv">64</span>)          <span class="co"># dnorm  — height of the curve</span></span>
+<span id="cb31-7"><a href="" aria-hidden="true" tabindex="-1"></a>Y.cdf(<span class="dv">49</span>)          <span class="co"># pnorm  — 0.1587, area to the left</span></span>
+<span id="cb31-8"><a href="" aria-hidden="true" tabindex="-1"></a>Y.ppf(<span class="fl">0.90</span>)        <span class="co"># qnorm  — 83.22, the 90th percentile</span></span>
+<span id="cb31-9"><a href="" aria-hidden="true" tabindex="-1"></a>Y.rvs(size<span class="op">=</span><span class="dv">500</span>, random_state<span class="op">=</span><span class="dv">300</span>)     <span class="co"># rnorm — 500 draws</span></span>
+<span id="cb31-10"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-11"><a href="" aria-hidden="true" tabindex="-1"></a>Y.cdf(<span class="dv">79</span>) <span class="op">-</span> Y.cdf(<span class="dv">49</span>)                 <span class="co"># 0.6827, the area between</span></span>
+<span id="cb31-12"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-13"><a href="" aria-hidden="true" tabindex="-1"></a>stats.norm.ppf(<span class="fl">0.975</span>)                 <span class="co"># 1.96</span></span>
+<span id="cb31-14"><a href="" aria-hidden="true" tabindex="-1"></a>stats.t.ppf(<span class="fl">0.975</span>, df<span class="op">=</span><span class="dv">30</span>)             <span class="co"># 2.042</span></span>
+<span id="cb31-15"><a href="" aria-hidden="true" tabindex="-1"></a>stats.chi2.ppf(<span class="fl">0.95</span>, df<span class="op">=</span><span class="dv">3</span>)            <span class="co"># 7.815</span></span>
+<span id="cb31-16"><a href="" aria-hidden="true" tabindex="-1"></a>stats.f.ppf(<span class="fl">0.95</span>, dfn<span class="op">=</span><span class="dv">3</span>, dfd<span class="op">=</span><span class="dv">60</span>)      <span class="co"># 2.758</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p><code>ppf</code> = “percent point function” = R’s <code>q</code>. The naming is worse; the behavior is identical.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="sampling-distribution-and-the-clt-in-python" class="slide level2" data-visibility="uncounted">
+<h2>Sampling distribution and the CLT in Python</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb32-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb32-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="" aria-hidden="true" tabindex="-1"></a>rng <span class="op">=</span> np.random.default_rng(<span class="dv">300</span>)</span>
+<span id="cb32-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># You Try 3: 10,000 samples of size 100 from Bernoulli(0.32)</span></span>
+<span id="cb32-7"><a href="" aria-hidden="true" tabindex="-1"></a>sample_means <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.32</span>, size<span class="op">=</span>(<span class="dv">10_000</span>, <span class="dv">100</span>)).mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-8"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="" aria-hidden="true" tabindex="-1"></a>sample_means.mean()            <span class="co"># ~0.32   theory: mu</span></span>
+<span id="cb32-10"><a href="" aria-hidden="true" tabindex="-1"></a>sample_means.std(ddof<span class="op">=</span><span class="dv">1</span>)       <span class="co"># ~0.0467 theory: sqrt(0.2176/100)</span></span>
+<span id="cb32-11"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-12"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># You Try 4: the CLT, four sample sizes</span></span>
+<span id="cb32-13"><a href="" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="dv">3</span>))</span>
+<span id="cb32-14"><a href="" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> ax, n <span class="kw">in</span> <span class="bu">zip</span>(axes, [<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">30</span>, <span class="dv">200</span>]):</span>
+<span id="cb32-15"><a href="" aria-hidden="true" tabindex="-1"></a>    ybar <span class="op">=</span> rng.binomial(<span class="dv">1</span>, <span class="fl">0.32</span>, size<span class="op">=</span>(<span class="dv">4000</span>, n)).mean(axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb32-16"><a href="" aria-hidden="true" tabindex="-1"></a>    ax.hist(ybar, bins<span class="op">=</span><span class="dv">30</span>, color<span class="op">=</span><span class="st">"steelblue"</span>, edgecolor<span class="op">=</span><span class="st">"white"</span>)</span>
+<span id="cb32-17"><a href="" aria-hidden="true" tabindex="-1"></a>    ax.set_title(<span class="ss">f"n = </span><span class="sc">{</span>n<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb32-18"><a href="" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-warning no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<p><code>.std()</code> divides by <span class="math inline">\(n\)</span> unless you pass <code>ddof=1</code>. Same trap as Tuesday’s <code>np.var()</code>. R’s <code>sd()</code> always uses <span class="math inline">\(n-1\)</span>.</p>
+</div>
+</div>
+</div>
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="day-04-probability-ii_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/reveal-chalkboard/plugin.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="day-04-probability-ii_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': true,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleChalkboard(event)\"><kbd>b</kbd> Toggle Chalkboard</a></li>\n<li class=\"slide-tool-item\" data-item=\"6\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleNotesCanvas(event)\"><kbd>c</kbd> Toggle Notes Canvas</a></li>\n<li class=\"slide-tool-item\" data-item=\"7\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.downloadDrawings(event)\"><kbd>d</kbd> Download Drawings</a></li>\n<li class=\"slide-tool-item\" data-item=\"8\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'chalkboard': {"buttons":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 720,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, RevealChalkboard, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

@@ -172,9 +172,9 @@ distribution; the prefix names the **question**.
 
 ```{r}
 #| label: dpqr
-pnorm(1.96)              # area left of 1.96 on a standard normal
-qnorm(0.975)             # the value with 97.5% of area to its left
-round(rnorm(5, 64, 15), 1)   # 5 draws from N(64, 15^2)
+pnorm(1.96) # area left of 1.96 on a standard normal
+qnorm(0.975) # the value with 97.5% of area to its left
+round(rnorm(5, 64, 15), 1) # 5 draws from N(64, 15^2)
 ```
 
 ::: {.notes}
@@ -230,10 +230,10 @@ leaves the middle strip. This trick is used on every normal problem forever.
 
 ```{r}
 #| label: you-try-1-soln
-pnorm(49, 64, 15)                              # (a) below $49k
-qnorm(0.90, 64, 15)                            # (b) 90th percentile
-pnorm(79, 64, 15) - pnorm(49, 64, 15)          # (d) between
-head(round(rnorm(500, 64, 15), 1), 8)          # (c) first 8 of 500 draws
+pnorm(49, 64, 15) # (a) below $49k
+qnorm(0.90, 64, 15) # (b) 90th percentile
+pnorm(79, 64, 15) - pnorm(49, 64, 15) # (d) between
+head(round(rnorm(500, 64, 15), 1), 8) # (c) first 8 of 500 draws
 ```
 
 . . .
@@ -272,10 +272,18 @@ $\sigma$ makes it fat or thin. That is the entire family.
 #| fig-align: center
 ggplot(data.frame(y = c(10, 120)), aes(y)) +
   stat_function(fun = dnorm, args = list(mean = 64, sd = 15), linewidth = .9) +
-  stat_function(fun = dnorm, args = list(mean = 64, sd = 7),
-                linewidth = .9, linetype = "dashed") +
-  stat_function(fun = dnorm, args = list(mean = 90, sd = 15),
-                linewidth = .9, linetype = "dotted") +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 64, sd = 7),
+    linewidth = .9,
+    linetype = "dashed"
+  ) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = 90, sd = 15),
+    linewidth = .9,
+    linetype = "dotted"
+  ) +
   annotate("text", x = 64, y = .058, label = "N(64, 7²)", size = 4) +
   annotate("text", x = 40, y = .020, label = "N(64, 15²)", size = 4) +
   annotate("text", x = 108, y = .020, label = "N(90, 15²)", size = 4) +
@@ -383,9 +391,11 @@ percentile**.
 
 ```{r}
 #| label: you-try-2-soln
-c(b = 1 - pnorm(94, 64, 15),
+c(
+  b = 1 - pnorm(94, 64, 15),
   c = pnorm(94, 64, 15) - pnorm(49, 64, 15),
-  e = pnorm(82, 64, 15))
+  e = pnorm(82, 64, 15)
+)
 ```
 
 ::: {.notes}
@@ -423,10 +433,16 @@ distribution (scaled). Tests of several restrictions at once.
 #| echo: false
 ggplot(data.frame(w = c(0, 30)), aes(w)) +
   stat_function(fun = dchisq, args = list(df = 3), linewidth = .9) +
-  stat_function(fun = dchisq, args = list(df = 10), linewidth = .9, linetype = "dashed") +
+  stat_function(
+    fun = dchisq,
+    args = list(df = 10),
+    linewidth = .9,
+    linetype = "dashed"
+  ) +
   annotate("text", x = 3.5, y = .20, label = "df = 3", size = 4) +
   annotate("text", x = 15, y = .07, label = "df = 10", size = 4) +
-  labs(x = NULL, y = "density") + theme_minimal(base_size = 12)
+  labs(x = NULL, y = "density") +
+  theme_minimal(base_size = 12)
 ```
 
 ::: {.notes}
@@ -454,10 +470,10 @@ for it with **fatter tails**.
 
 ```{r}
 #| label: t-vs-z
-qt(0.975, df = 10)     # small sample: need to go further out
+qt(0.975, df = 10) # small sample: need to go further out
 qt(0.975, df = 30)
 qt(0.975, df = 100)
-qnorm(0.975)           # the limit
+qnorm(0.975) # the limit
 ```
 
 . . .
@@ -497,7 +513,7 @@ big relative to that one?"*
 
 ```{r}
 #| label: f-dist
-qf(0.95, df1 = 3, df2 = 60)    # critical value for testing 3 restrictions
+qf(0.95, df1 = 3, df2 = 60) # critical value for testing 3 restrictions
 ```
 
 ::: {.notes}
@@ -713,7 +729,7 @@ sample_means <- replicate(10000, {
   mean(one_sample)
 })
 
-c(mean = ____, sd = ____)     # compare to your part (a)
+c(mean = ____, sd = ____) # compare to your part (a)
 ```
 
 **(c)** Do the simulated numbers match your hand answers? Should they match
@@ -739,8 +755,12 @@ double and halve. That is the sqrt(n) rule made visible.
 set.seed(300)
 sample_means <- replicate(10000, mean(rbinom(n = 100, size = 1, prob = 0.32)))
 
-c(sim_mean = mean(sample_means),   theory_mean = 0.32,
-  sim_sd   = sd(sample_means),     theory_sd   = sqrt(0.2176 / 100))
+c(
+  sim_mean = mean(sample_means),
+  theory_mean = 0.32,
+  sim_sd = sd(sample_means),
+  theory_sd = sqrt(0.2176 / 100)
+)
 ```
 
 . . .
@@ -860,15 +880,14 @@ Run this and look at the four panels.
 set.seed(300)
 
 clt_draw <- function(n) {
-  tibble(n = paste("n =", n),
-         ybar = replicate(4000, mean(rbinom(n, 1, 0.32))))
+  tibble(n = paste("n =", n), ybar = replicate(4000, mean(rbinom(n, 1, 0.32))))
 }
 
 map_dfr(c(1, 5, 30, 200), clt_draw) |>
   mutate(n = fct_inorder(n)) |>
   ggplot(aes(ybar)) +
   geom_histogram(bins = 30, fill = "steelblue", colour = "white") +
-  facet_wrap(~ n, scales = "free") +
+  facet_wrap(~n, scales = "free") +
   labs(x = expression(bar(Y)), y = NULL) +
   theme_minimal(base_size = 12)
 ```
